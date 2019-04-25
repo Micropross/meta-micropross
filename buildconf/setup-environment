@@ -1,0 +1,25 @@
+#!/bin/sh
+
+SOURCES=`pwd`/sources
+
+if [ -z $1 ]; then
+	BUILDDIR="build"
+else
+	BUILDDIR=$1
+fi
+
+do_config=""
+if [ ! -e $BUILDDIR ]; then
+	do_config="true"
+fi
+
+OEROOT=$SOURCES/openembedded-core
+
+. $OEROOT/oe-init-build-env $1 > /dev/null
+
+if [ "$do_config" = "true" ]; then
+	sed -e "s,MACHINE ??=.*,MACHINE ??= 'imx6qdl-mp500',g" \
+		-i conf/local.conf
+
+	cp $SOURCES/meta-micropross/buildconf/bblayers.conf conf/
+fi
