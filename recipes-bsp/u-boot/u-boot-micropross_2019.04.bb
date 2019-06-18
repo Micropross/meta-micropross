@@ -16,7 +16,7 @@ SRC_URI = "git://git@tau.bootlin.com/micropross/u-boot;protocol=ssh;branch=${SRC
 
 PV = "2019.04+git${SRCPV}"
 
-SRCREV = "84d44c5f6e03d90b718f25ee1b98433bf769ea88"
+SRCREV = "${AUTOREV}"
 SRCBRANCH = "v2019.04-micropross"
 
 COMPATIBLE_MACHINE = "(imx6qdl-mp500)"
