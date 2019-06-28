@@ -19,4 +19,9 @@ PV = "2019.04+git${SRCPV}"
 SRCREV = "${AUTOREV}"
 SRCBRANCH = "v2019.04-micropross"
 
+do_compile_append () {
+	cp ${B}/u-boot-dtb.imx ${B}/u-boot.imx
+}
+
+
 COMPATIBLE_MACHINE = "(imx6qdl-mp500)"
