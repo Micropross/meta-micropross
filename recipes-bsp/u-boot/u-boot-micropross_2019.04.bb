@@ -12,7 +12,7 @@ PE = "1"
 
 S = "${WORKDIR}/git"
 
-SRC_URI = "git://git@tau.bootlin.com/micropross/u-boot;protocol=ssh;branch=${SRCBRANCH}"
+SRC_URI = "git://git@github.com/Micropross/MP500_u-boot;protocol=ssh;branch=${SRCBRANCH}"
 
 PV = "2019.04+git${SRCPV}"
 

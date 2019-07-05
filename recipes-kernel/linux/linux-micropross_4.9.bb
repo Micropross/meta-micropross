@@ -11,7 +11,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/${P}:"
 
 S = "${WORKDIR}/git"
 
-SRC_URI = "git://git@tau.bootlin.com/micropross/linux;protocol=ssh;branch=${SRCBRANCH}"
+SRC_URI = "git://git@github.com/Micropross/MP500_linux;protocol=ssh;branch=${SRCBRANCH}"
 #SRC_URI += "file://defconfig"
 
 PV = "4.19+${SRCPV}"
