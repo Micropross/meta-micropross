@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+	<default sync-j="4" revision="thud"/>
+	
+	<remote name="oe" fetch="git://github.com/openembedded"/>
+	<remote name="micropross" fetch="git://github.com/Micropross"/>
+
+	<project remote="oe" name="openembedded-core" path="sources/oe-core"/>
+	<project remote="oe" name="bitbake" path="sources/oe-core/bitbake" revision="1.40"/>
+	<project remote="oe" name="meta-openembedded" path="sources/meta-oe"/>
+	
+	<project remote="micropross" name="meta-micropross"  path="sources/meta-micropross" revision="thud-txgrl"/>
+</manifest>
