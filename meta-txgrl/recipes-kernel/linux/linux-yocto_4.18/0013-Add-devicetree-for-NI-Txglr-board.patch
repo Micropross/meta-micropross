@@ -1,0 +1,344 @@
+On branch v4.19.59rt
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	modified:   arch/arm/boot/dts/Makefile
+	new file:   arch/arm/boot/dts/zynq-ni-txgrl.dts
+
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	modified:   arch/arm/boot/dts/zynq-ni-txgrl.dts
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	defconfig
+	txgrl_defconfig
+	txgrl_defconfig.old
+
+diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
+index b5bd3de87c33..a2484541a52a 100644
+--- a/arch/arm/boot/dts/Makefile
++++ b/arch/arm/boot/dts/Makefile
+@@ -1123,6 +1123,7 @@ dtb-$(CONFIG_ARCH_VT8500) += \
+ dtb-$(CONFIG_ARCH_ZYNQ) += \
+ 	zynq-cc108.dtb \
+ 	zynq-microzed.dtb \
++	zynq-ni-txgrl.dtb \
+ 	zynq-parallella.dtb \
+ 	zynq-zc702.dtb \
+ 	zynq-zc706.dtb \
+diff --git a/arch/arm/boot/dts/zynq-ni-txgrl.dts b/arch/arm/boot/dts/zynq-ni-txgrl.dts
+new file mode 100644
+index 000000000000..435aff88f354
+--- /dev/null
++++ b/arch/arm/boot/dts/zynq-ni-txgrl.dts
+@@ -0,0 +1,306 @@
++// SPDX-License-Identifier: (GPL-2.0 OR X11)
++/*
++ * National Instruments Micropross Project Txgrl
++ *
++ * Copyright (c) 2019 National Instruments Corp.
++ *
++ */
++
++/dts-v1/;
++
++#include <dt-bindings/input/input.h>
++#include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/gpio/gpio.h>
++#include "zynq-7000.dtsi"
++
++/ {
++	model = "NI Micropross Project Txgrl";
++	compatible = "micropross,zynq-txgrl-reva", "xlnx,zynq-7000";
++
++	aliases {
++		ethernet0 = &gem0;
++		serial0 = &uart0;
++		serial1 = &uart1;
++		spi0 = &spi0;
++		i2c0 = &i2c0;
++		i2c1 = &i2c1;
++		i2c2 = &tun;
++	};
++
++	memory {
++		device_type = "memory";
++		reg = <0x0 0x40000000>;
++	};
++
++	chosen {
++		stdout-path = "serial0:115200n8";
++	};
++
++	gpio-keys {
++		compatible = "gpio-keys";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		power-button {
++			label = "Power Button";
++			linux,code = <KEY_POWER>;
++			gpios = <&gpio0 9 GPIO_ACTIVE_HIGH>;
++		};
++	};
++
++	gpio-poweroff {
++		compatible = "gpio-poweroff";
++		gpios = <&gpio0 56 GPIO_ACTIVE_LOW>;
++	};
++
++	usb_phy0: phy0 {
++		compatible = "usb-nop-xceiv";
++		#phy-cells = <0>;
++		reset-gpios = <&gpio0 46 GPIO_ACTIVE_LOW>;
++	};
++
++};
++
++&cpu0 {
++	operating-points = <1000000 1000000>;
++};
++
++&sdhci0 {
++	status = "okay";
++};
++
++&uart0 {
++	status = "okay";
++};
++
++&uart1 {
++	status = "okay";
++};
++
++/* we use the ARM global timer */
++&ttc0 {
++	status = "disabled";
++};
++
++/* we use the ARM global timer */
++&ttc1 {
++	status = "disabled";
++};
++
++&i2c0 {
++	status = "okay";
++	clock-frequency = <400000>;
++
++	embedded-controller@1e {
++		status = "okay";
++		reg = <0x1e>;
++		compatible = "ni,embedded-controller-i2c",
++			     "google,cros-ec-i2c";
++		interrupts = <0 IRQ_TYPE_EDGE_FALLING>;
++		interrupt-parent = <&gpio0>;
++		google,has-vbc-nvram;
++
++		wakeup-source;
++               thermal: thermal {
++                       compatible = "google,cros-ec-thermal";
++               };
++
++		tun: i2c-tunnel {
++			compatible = "google,cros-ec-i2c-tunnel";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			google,remote-bus = <0>;
++			clock-frequency = <100000>;
++
++			eeprom-mb@50 {
++				compatible = "at,24c512";
++				reg = <0x50>;
++
++				eth0_addr: eth-addr@24 {
++					reg = <0x30 0x6>;
++				};
++			};
++
++			eeprom-mb@54 {
++				compatible = "at,24c512";
++				reg = <0x54>;
++			};
++		};
++	};
++
++	i2c-switch@70 {
++		compatible = "nxp,pca9548";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x70>;
++
++		i2c-ext@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++		};
++
++		i2c-ext@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++
++		};
++	};
++};
++
++&i2c1 {
++	status = "okay";
++	clock-frequency = <400000>;
++
++	rtc0: rtc@68 {
++		compatible = "dallas,ds1374";
++		reg = <0x68>;
++		reset-on-timeout;
++		trickle-resistor-ohms = <250>;
++		trickle-diode-disable;
++		timeout-sec = <10>;
++	};
++
++	gpio@77 {
++		compatible = "nxp,pca9539";
++		reg = <0x77>;
++	};
++
++	i2c-switch@71 {
++		compatible = "nxp,pca9548";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x71>;
++
++		i2c-nfc@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++
++			eeprom-nfc@50 {
++				compatible = "at,24c512";
++				reg = <0x50>;
++			};
++
++			eeprom-nfc@54 {
++				compatible = "at,24c512";
++				reg = <0x54>;
++			};
++		};
++
++		i2c-nfc@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++
++			gpio-nfc@76 {
++				compatible = "nxp,pca9539";
++				reg = <0x76>;
++			};
++		};
++	};
++
++	i2c-switch@74 {
++		compatible = "nxp,pca9548";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x74>;
++
++		i2c-scope@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++
++			eeprom-scope@53 {
++				compatible = "at,24c512";
++				reg = <0x53>;
++			};
++
++			eeprom-scope@57 {
++				compatible = "at,24c512";
++				reg = <0x57>;
++			};
++		};
++
++		i2c-scope@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++
++			gpio-scope@75 {
++				compatible = "nxp,pca9539";
++				reg = <0x75>;
++			};
++		};
++	};
++};
++
++&gpio0 {
++	status = "okay";
++};
++
++&clkc {
++	ps-clk-frequency = <33333333>;
++	fclk-enable = <0xf>;
++};
++
++&spi0 {
++	status = "okay";
++
++	flash: n25q512a@0 {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		compatible = "micron,n25q512a", "jedec,spi-nor";
++		reg = <0>;
++		spi-max-frequency = <40000000>;
++		m25p,fast-read;
++	};
++};
++
++&spi1 {
++	status = "disabled";
++};
++
++&gem0 {
++	status = "okay";
++	phy-mode = "rgmii-id";
++	phy-handle = <&ethernet_phy0>;
++
++	nvmem-cells = <&eth0_addr>;
++	nvmem-cell-names = "mac-address";
++
++	rxc-skew-ps = <1860>;
++	rxdv-skew-ps = <0>;
++
++	rxd0-skew-ps = <0>;
++	rxd1-skew-ps = <0>;
++	rxd2-skew-ps = <0>;
++	rxd3-skew-ps = <0>;
++
++	txd0-skew-ps = <0>;
++	txd1-skew-ps = <0>;
++	txd2-skew-ps = <0>;
++	txd3-skew-ps = <0>;
++
++	txc-skew-ps = <1860>;
++	txen-skew-ps = <0>;
++
++	ethernet_phy0: ethernet-phy@7 {
++		reg = <7>;
++		reset-gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
++	};
++};
++
++&usb0 {
++	status = "okay";
++	dr_mode = "host";
++	usb-phy = <&usb_phy0>;
++};
++
++&amba {
++	ocm: sram@fffc0000 {
++		compatible = "mmio-sram";
++		reg = <0xfffc0000 0x10000>;
++	};
++};

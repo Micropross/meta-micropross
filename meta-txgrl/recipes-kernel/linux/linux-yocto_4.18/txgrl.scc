@@ -1,0 +1,17 @@
+patch 0001-OF-DT-Overlay-configfs-interface-v7.patch
+patch 0002-kbuild-Enable-DT-symbols-when-CONFIG_OF_OVERLAY-is-u.patch
+patch 0003-net-nixge-Work-around-broken-PHY-autoneg.patch
+patch 0004-misc-eeprom-Set-io_limit-to-16-to-avoid-overflowing.patch
+patch 0005-scatterlist-introduce-sg_nents_for_dma-helper.patch
+patch 0006-dma-axi-dmac-Split-too-large-segments.patch
+patch 0007-drivers-dma-dma-axi-dmac-Enable-TLAST-handling.patch
+patch 0008-net-phy-Make-genphy-actually-use-genphy_soft_reset.patch
+patch 0009-net-nixge-Separate-ctrl-and-dma-resources.patch
+patch 0010-rfnoc-Initial-shot-add-adding-RFNoC-support.patch
+patch 0011-media-Increase-VIDEO_MAX_FRAMES-and-VB2_MAX_FRAMES-t.patch
+patch 0012-usrp-Added-support-for-USRP-DMA-device.patch
+patch 0013-Add-devicetree-for-NI-Txglr-board.patch
+patch 0014-tpm-tpm_i2c_atmel-Add-hack-to-allow-taking-TPM-out-o.patch
+patch 0015-mfd-cros-ec-Add-cros_ec_readmem-helpers-for-I2C-SPI-.patch
+patch 0016-thermal-cros-ec-thermal-Add-thermal-driver-for-chrom.patch
+patch 0017-mfd-cros_ec-Fix-struct-definition-to-work-with-upstr.patch
