@@ -31,6 +31,8 @@ CORE_IMAGE_EXTRA_INSTALL = "\
     tzdata \
     pciutils \
 	gdbserver \
+	rng-tools \
+	haveged \
     "
 
 inherit core-image image-buildinfo
