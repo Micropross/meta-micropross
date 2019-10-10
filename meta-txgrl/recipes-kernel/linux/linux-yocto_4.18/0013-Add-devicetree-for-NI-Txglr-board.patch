@@ -1,28 +1,8 @@
-On branch v4.19.59rt
-Changes to be committed:
-  (use "git reset HEAD <file>..." to unstage)
-
-	modified:   arch/arm/boot/dts/Makefile
-	new file:   arch/arm/boot/dts/zynq-ni-txgrl.dts
-
-Changes not staged for commit:
-  (use "git add <file>..." to update what will be committed)
-  (use "git checkout -- <file>..." to discard changes in working directory)
-
-	modified:   arch/arm/boot/dts/zynq-ni-txgrl.dts
-
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-
-	defconfig
-	txgrl_defconfig
-	txgrl_defconfig.old
-
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index b5bd3de87c33..a2484541a52a 100644
+index 37a3de760d40..2268ac1b8197 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -1123,6 +1123,7 @@ dtb-$(CONFIG_ARCH_VT8500) += \
+@@ -1101,6 +1101,7 @@ dtb-$(CONFIG_ARCH_VT8500) += \
  dtb-$(CONFIG_ARCH_ZYNQ) += \
  	zynq-cc108.dtb \
  	zynq-microzed.dtb \
@@ -32,10 +12,10 @@ index b5bd3de87c33..a2484541a52a 100644
  	zynq-zc706.dtb \
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl.dts b/arch/arm/boot/dts/zynq-ni-txgrl.dts
 new file mode 100644
-index 000000000000..435aff88f354
+index 000000000000..e1536f9579a9
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl.dts
-@@ -0,0 +1,306 @@
+@@ -0,0 +1,471 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
 + * National Instruments Micropross Project Txgrl
@@ -88,13 +68,172 @@ index 000000000000..435aff88f354
 +
 +	gpio-poweroff {
 +		compatible = "gpio-poweroff";
-+		gpios = <&gpio0 56 GPIO_ACTIVE_LOW>;
++		gpios = <&gpio0 55 GPIO_ACTIVE_LOW>;
 +	};
 +
 +	usb_phy0: phy0 {
 +		compatible = "usb-nop-xceiv";
 +		#phy-cells = <0>;
 +		reset-gpios = <&gpio0 46 GPIO_ACTIVE_LOW>;
++	};
++
++	leds-mb {
++		compatible = "gpio-leds";
++
++		led_mb_trigger1 {
++			gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_mb_trigger2 {
++			gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_mb_trigger3 {
++			gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_mb_aux_g {
++			gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_mb_aux_r {
++			gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_mb_aux_b {
++			gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_mb_status_g {
++			gpios = <&gpio1 8 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_mb_status_r {
++			gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
++			default-state = "on";
++		};
++
++		led_mb_status_b {
++			gpios = <&gpio1 10 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++
++	leds-nfc {
++		compatible = "gpio-leds";
++
++		led_nfc_tx_rx {
++			gpios = <&gpio2 0 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_rfq {
++			gpios = <&gpio2 1 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_analog_in {
++			gpios = <&gpio2 2 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		
++		led_nfc_aux1_g {
++			gpios = <&gpio2 3 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_aux1_r {
++			gpios = <&gpio2 4 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_aux1_b {
++			gpios = <&gpio2 5 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_mod {
++			gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_vdc {
++			gpios = <&gpio2 7 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++	};
++
++	leds-scope {
++		compatible = "gpio-leds";
++
++		led_scope_status_g {
++			gpios = <&gpio3 0 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_status_r {
++			gpios = <&gpio3 1 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_status_b {
++			gpios = <&gpio3 2 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_channel1_sma {
++			gpios = <&gpio3 3 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_channel1_bnc {
++			gpios = <&gpio3 4 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_channel2_sma {
++			gpios = <&gpio3 5 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_channel2_bnc {
++			gpios = <&gpio3 6 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_sync {
++			gpios = <&gpio3 7 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_channel3_sma {
++			gpios = <&gpio3 8 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_channel3_bnc {
++			gpios = <&gpio3 9 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_channel4_sma {
++			gpios = <&gpio3 10 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_channel4_bnc {
++			gpios = <&gpio3 11 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
 +	};
 +
 +};
@@ -139,9 +278,9 @@ index 000000000000..435aff88f354
 +		google,has-vbc-nvram;
 +
 +		wakeup-source;
-+               thermal: thermal {
-+                       compatible = "google,cros-ec-thermal";
-+               };
++			thermal: thermal {
++					compatible = "google,cros-ec-thermal";
++			};
 +
 +		tun: i2c-tunnel {
 +			compatible = "google,cros-ec-i2c-tunnel";
@@ -200,9 +339,11 @@ index 000000000000..435aff88f354
 +		timeout-sec = <10>;
 +	};
 +
-+	gpio@77 {
++	gpio1: gpio@77 {
 +		compatible = "nxp,pca9539";
 +		reg = <0x77>;
++		gpio-controller;
++		#gpio-cells = <2>;
 +	};
 +
 +	i2c-switch@71 {
@@ -232,9 +373,11 @@ index 000000000000..435aff88f354
 +			#size-cells = <0>;
 +			reg = <1>;
 +
-+			gpio-nfc@76 {
++			gpio2: gpio-nfc@76 {
 +				compatible = "nxp,pca9539";
 +				reg = <0x76>;
++				gpio-controller;
++				#gpio-cells = <2>;
 +			};
 +		};
 +	};
@@ -266,9 +409,11 @@ index 000000000000..435aff88f354
 +			#size-cells = <0>;
 +			reg = <1>;
 +
-+			gpio-scope@75 {
++			gpio3: gpio-scope@75 {
 +				compatible = "nxp,pca9539";
 +				reg = <0x75>;
++				gpio-controller;
++				#gpio-cells = <2>;
 +			};
 +		};
 +	};
