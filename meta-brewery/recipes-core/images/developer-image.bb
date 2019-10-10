@@ -33,6 +33,7 @@ CORE_IMAGE_EXTRA_INSTALL = "\
 	gdbserver \
 	rng-tools \
 	haveged \
+	libgpiod \
     "
 
 inherit core-image image-buildinfo
