@@ -22,7 +22,6 @@ do_install_append_ni-txgrl() {
         install -d ${D}/data/network
 
         install -m 0755 ${WORKDIR}/eth0.network ${D}/data/network/eth0.network
-        install -m 0644 ${WORKDIR}/system.conf ${D}${sysconfdir}/systemd
 
         install -d ${D}${sysconfdir}/systemd/network
         ln -sf /data/network/eth0.network ${D}${sysconfdir}/systemd/network/eth0.network

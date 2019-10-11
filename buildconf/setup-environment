@@ -20,6 +20,6 @@ OEROOT=$SOURCES/oe-core
 if [ "$do_config" = "true" ]; then
 	sed -e "s,MACHINE ??=.*,MACHINE ??= 'ni-txgrl',g" \
 		-i conf/local.conf
-
+	echo "DISTRO = \"Brewery\"" >> conf/local.conf
 	cp $SOURCES/meta-micropross/buildconf/bblayers.conf conf/
 fi

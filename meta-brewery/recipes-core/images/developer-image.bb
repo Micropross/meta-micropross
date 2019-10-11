@@ -34,6 +34,7 @@ CORE_IMAGE_EXTRA_INSTALL = "\
 	rng-tools \
 	haveged \
 	libgpiod \
+	lsof \
     "
 
 inherit core-image image-buildinfo
