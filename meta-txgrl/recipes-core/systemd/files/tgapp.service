@@ -1,0 +1,15 @@
+[Unit]
+Description=CTS3 Firmware service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+#Restart=always
+#RestartSec=1
+User=root
+ExecStartPre=/usr/bin/gpioset gpiochip0 65=1
+ExecStart=/usr/bin/tgapp
+
+[Install]
+WantedBy=multi-user.target
