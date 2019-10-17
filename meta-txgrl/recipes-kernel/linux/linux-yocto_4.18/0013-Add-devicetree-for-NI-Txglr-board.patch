@@ -129,21 +129,21 @@ index 000000000000..e1536f9579a9
 +	leds-nfc {
 +		compatible = "gpio-leds";
 +
-+		led_nfc_tx_rx {
++		led_nfc_rfq {
 +			gpios = <&gpio2 0 GPIO_ACTIVE_HIGH>;
 +			default-state = "off";
 +		};
 +
-+		led_nfc_rfq {
++		led_nfc_tx_rx {
 +			gpios = <&gpio2 1 GPIO_ACTIVE_HIGH>;
 +			default-state = "off";
 +		};
 +
-+		led_nfc_analog_in {
++		led_nfc_mod {
 +			gpios = <&gpio2 2 GPIO_ACTIVE_HIGH>;
 +			default-state = "off";
 +		};
-+		
++
 +		led_nfc_aux1_g {
 +			gpios = <&gpio2 3 GPIO_ACTIVE_HIGH>;
 +			default-state = "off";
@@ -159,12 +159,12 @@ index 000000000000..e1536f9579a9
 +			default-state = "off";
 +		};
 +
-+		led_nfc_mod {
++		led_nfc_vdc {
 +			gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
 +			default-state = "off";
 +		};
 +
-+		led_nfc_vdc {
++		led_nfc_analog_in {
 +			gpios = <&gpio2 7 GPIO_ACTIVE_HIGH>;
 +			default-state = "off";
 +		};
