@@ -6,14 +6,18 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
 SRC_URI = " file://ec-txgrl-rev1.RW.bin \
+			file://txgrl-pl.dtbo \
           "
 		  
 FILES_${PN} = "/lib/firmware/ni/ec-txgrl-rev1.RW.bin \
-					  "
+			   /lib/firmware/txgrl-pl.dtbo \
+			  "
 
 S = "${WORKDIR}"
 
 do_install() {
 	install -d ${D}/lib/firmware/ni/
     install -D -m 0644 ${WORKDIR}/ec-txgrl-rev1.RW.bin ${D}/lib/firmware/ni/ec-txgrl-rev1.RW.bin
+	
+	install -D -m 0600 ${WORKDIR}/txgrl-pl.dtbo ${D}/lib/firmware/txgrl-pl.dtbo
 }
