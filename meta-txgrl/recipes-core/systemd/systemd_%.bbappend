@@ -8,19 +8,21 @@ SRC_URI_append_ni-txgrl = " \
     file://eth0.network \
     file://timesyncd.conf \
     file://tgapp.service \
+    file://init_cts3.service \
 "
 
 FILES_${PN}_append_ni-txgrl = " \
     ${sysconfdir}/systemd/network/eth0.network \
 	  ${sysconfdir}/systemd/timesyncd.conf \
     ${systemd_unitdir}/system/tgapp.service \
+    ${systemd_unitdir}/system/init_cts3.service \
 "
 
 FILES_${PN}_append_ni-txgrl = " \
     /data/* \
 "
 
-SYSTEMD_SERVICE_${PN} = "tgapp.service"
+SYSTEMD_SERVICE_${PN} = "tgapp.service init_cts3.service"
 
 do_install_append_ni-txgrl() {
   if ${@bb.utils.contains('PACKAGECONFIG','networkd','true','false',d)}; then
@@ -35,7 +37,7 @@ do_install_append_ni-txgrl() {
             rm ${D}${sysconfdir}/systemd/network/eth.network
         fi
   fi
-  
+
   if ${@bb.utils.contains('PACKAGECONFIG','timesyncd','true','false',d)}; then
     install -d ${D}${sysconfdir}/systemd
 
@@ -48,7 +50,10 @@ do_install_append_ni-txgrl() {
 
   # Install tgapp service
   install -d ${D}${systemd_unitdir}/system/
-  install -m 0755 ${WORKDIR}/tgapp.service ${D}${systemd_unitdir}/system/tgapp.service
+  install -m 0655 ${WORKDIR}/tgapp.service ${D}${systemd_unitdir}/system/tgapp.service
+  install -m 0655 ${WORKDIR}/init_cts3.service ${D}${systemd_unitdir}/system/init_cts3.service
   install -d ${D}${sysconfdir}/systemd/system/multi-user.target.wants/
   ln -sf ${systemd_unitdir}/system/tgapp.service ${D}${sysconfdir}/systemd/system/multi-user.target.wants/tgapp.service
+  ln -sf ${systemd_unitdir}/system/init_cts3.service ${D}${sysconfdir}/systemd/system/multi-user.target.wants/init_cts3.service
+
 }

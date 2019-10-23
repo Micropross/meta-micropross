@@ -1,0 +1,9 @@
+[Unit]
+Description=Init CTS3 board.
+Before=tgapp.service
+
+[Service]
+ExecStart=/usr/bin/init_cts3.sh
+
+[Install]
+WantedBy=multi-user.target
