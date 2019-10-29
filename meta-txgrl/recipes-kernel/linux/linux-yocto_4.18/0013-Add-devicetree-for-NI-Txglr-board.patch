@@ -12,10 +12,10 @@ index 37a3de760d40..2268ac1b8197 100644
  	zynq-zc706.dtb \
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl.dts b/arch/arm/boot/dts/zynq-ni-txgrl.dts
 new file mode 100644
-index 000000000000..508bea178af0
+index 000000000000..85ae85e25fe7
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl.dts
-@@ -0,0 +1,462 @@
+@@ -0,0 +1,463 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
 + * National Instruments Micropross Project Txgrl
@@ -51,6 +51,7 @@ index 000000000000..508bea178af0
 +	};
 +
 +	chosen {
++		bootargs = "earlyprintk  uio_pdrv_genirq.of_id=generic-uio";
 +		stdout-path = "serial0:115200n8";
 +	};
 +

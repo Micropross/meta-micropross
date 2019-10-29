@@ -10,6 +10,7 @@ SRC_URI = " file://ec-txgrl-rev1.RW.bin \
 			file://txgrl-pl.dts \
 			file://spi_nor.dts \
 			file://pcie.dts \
+			file://interrupts.dts \
           "
 		  
 FILES_${PN} = "/lib/firmware/ni/ec-txgrl-rev1.RW.bin \
@@ -17,6 +18,7 @@ FILES_${PN} = "/lib/firmware/ni/ec-txgrl-rev1.RW.bin \
 			   /lib/firmware/txgrl-pl.dtbo \
 			   /lib/firmware/spi_nor.dtbo \
 			   /lib/firmware/pcie.dtbo \
+			   /lib/firmware/interrupts.dtbo \
 			  "
 
 S = "${WORKDIR}"
@@ -27,6 +29,7 @@ do_compile() {
 	dtc -@ -o ${WORKDIR}/txgrl-pl.dtbo ${WORKDIR}/txgrl-pl.dts
     dtc -@ -o ${WORKDIR}/spi_nor.dtbo ${WORKDIR}/spi_nor.dts
     dtc -@ -o ${WORKDIR}/pcie.dtbo ${WORKDIR}/pcie.dts
+    dtc -@ -o ${WORKDIR}/interrupts.dtbo ${WORKDIR}/interrupts.dts
 }
 
 do_install() {
@@ -39,4 +42,5 @@ do_install() {
 	install -D -m 0600 ${WORKDIR}/txgrl-pl.dtbo ${D}/lib/firmware/txgrl-pl.dtbo
 	install -D -m 0600 ${WORKDIR}/spi_nor.dtbo ${D}/lib/firmware/spi_nor.dtbo
 	install -D -m 0600 ${WORKDIR}/pcie.dtbo ${D}/lib/firmware/pcie.dtbo
+	install -D -m 0600 ${WORKDIR}/interrupts.dtbo ${D}/lib/firmware/interrupts.dtbo
 }

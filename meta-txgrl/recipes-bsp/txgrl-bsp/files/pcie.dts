@@ -15,7 +15,7 @@
                 reg = < 0x80000000 0x4000000 >;
                 device_type = "pci";
                 interrupt-parent = <&intc>;
-                interrupts = < 0 68 4 >;
+                interrupts = < 0 36 4 >;
                 interrupt-map-mask = <0 0 0 7>;
                 interrupt-map = <0 0 0 1 &pcie_intc 1>,
                         <0 0 0 2 &pcie_intc 2>,

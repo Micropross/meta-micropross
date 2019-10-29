@@ -36,6 +36,7 @@ CORE_IMAGE_EXTRA_INSTALL = "\
 	libgpiod \
 	lsof \
 	mtd-utils \
+	dtc \
     "
 
 inherit core-image image-buildinfo
