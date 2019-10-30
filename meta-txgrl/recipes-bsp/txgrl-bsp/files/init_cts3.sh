@@ -1,22 +1,28 @@
 #!/bin/sh
 
+OVERLAY_LIST="txgrl-pl spi-nor interrupts pcie"
 OVERLAY_DIR=/lib/firmware
 
-# Load spi_nor overlay
-echo "Load spi_nor device tree overlay."
-gpioset gpiochip0 56=0
-mkdir -p /sys/kernel/config/device-tree/overlays/spi_nor
-cat $OVERLAY_DIR/spi_nor.dtbo > /sys/kernel/config/device-tree/overlays/spi_nor/dtbo
+##
+# Misc pre-overlay stuff
+##
 
-# Load pcie overlay
-echo "Load pcie device tree overlay."
-mkdir -p /sys/kernel/config/device-tree/overlays/pcie
-cat $OVERLAY_DIR/pcie.dtbo > /sys/kernel/config/device-tree/overlays/pcie/dtbo
+# Set SPI NOR buffer direction to be able detect the SPI NOR
+gpioset 0 56=0
 
-# Load interrupts overlay
-echo "Load interrupts device tree overlay."
-mkdir -p /sys/kernel/config/device-tree/overlays/interrupts
-cat $OVERLAY_DIR/interrupts.dtbo > /sys/kernel/config/device-tree/overlays/interrupts/dtbo
+##
+# Load overlays
+##
+for overlay in $OVERLAY_LIST
+do
+    echo "Load $overlay device tree overlay."
+    mkdir -p /sys/kernel/config/device-tree/overlays/$overlay
+    cat $OVERLAY_DIR/$overlay.dtbo > /sys/kernel/config/device-tree/overlays/$overlay/dtbo
+done
 
 # Wait for kernel to start hardware driver
 sleep 1
+
+##
+# Misc post-overlay stuff
+##
