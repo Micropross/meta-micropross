@@ -1,39 +1,3 @@
-From 8683d674919ee2c567de486a2682ca5dbaa33b24 Mon Sep 17 00:00:00 2001
-From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
-Date: Tue, 15 Oct 2019 14:10:39 +0200
-Subject: [PATCH] Add support of NI Txgrl board.
-
----
- arch/arm/dts/zynq-ni-txgrl-uboot.dtsi      |    33 +
- arch/arm/dts/zynq-ni-txgrl.dts             |   201 +
- board/ni/zynq/MAINTAINERS                  |     6 +
- board/ni/zynq/Makefile                     |    10 +
- board/ni/zynq/board.c                      |   207 +
- board/ni/zynq/si5338.c                     |   274 +
- board/ni/zynq/si5338.h                     |    13 +
- board/ni/zynq/si5338_reg.h                 |   437 +
- board/ni/zynq/txgrl-eeprom.c               |   155 +
- board/ni/zynq/txgrl-eeprom.h               |    48 +
- board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.c | 12978 +++++++++++++++++++
- board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.h |   137 +
- configs/ni_txgrl_defconfig                 |    72 +
- include/configs/ni_txgrl.h                 |    51 +
- 14 files changed, 14622 insertions(+)
- create mode 100644 arch/arm/dts/zynq-ni-txgrl-uboot.dtsi
- create mode 100644 arch/arm/dts/zynq-ni-txgrl.dts
- create mode 100644 board/ni/zynq/MAINTAINERS
- create mode 100644 board/ni/zynq/Makefile
- create mode 100644 board/ni/zynq/board.c
- create mode 100644 board/ni/zynq/si5338.c
- create mode 100644 board/ni/zynq/si5338.h
- create mode 100644 board/ni/zynq/si5338_reg.h
- create mode 100644 board/ni/zynq/txgrl-eeprom.c
- create mode 100644 board/ni/zynq/txgrl-eeprom.h
- create mode 100644 board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.c
- create mode 100644 board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.h
- create mode 100644 configs/ni_txgrl_defconfig
- create mode 100644 include/configs/ni_txgrl.h
-
 diff --git a/arch/arm/dts/zynq-ni-txgrl-uboot.dtsi b/arch/arm/dts/zynq-ni-txgrl-uboot.dtsi
 new file mode 100644
 index 0000000000..976c8bcc5b
@@ -524,10 +488,10 @@ index 0000000000..eb5c825bdd
 +#endif
 diff --git a/board/ni/zynq/si5338.c b/board/ni/zynq/si5338.c
 new file mode 100644
-index 0000000000..336ceea3eb
+index 0000000000..427369bdd9
 --- /dev/null
 +++ b/board/ni/zynq/si5338.c
-@@ -0,0 +1,274 @@
+@@ -0,0 +1,296 @@
 +#include <common.h>
 +#include "si5338.h"
 +#include "si5338_reg.h"
@@ -600,13 +564,19 @@ index 0000000000..336ceea3eb
 +
 +	err = uclass_get_device_by_seq(UCLASS_I2C, 1, &i2c_tun);
 +	if (err < 0) {
-+		printf("Failed to get i2c \n");
++		printf("Failed to get i2c\n");
 +		return err;
 +	}
 +
 +	err = dm_i2c_probe(i2c_tun, 0x72, 0, &si5338_chip);
 +	if (err < 0) {
-+		printf("Failed to probe Si5338 \n");
++		printf("Failed to probe Si5338\n");
++		return err;
++	}
++
++	err = dm_i2c_set_bus_speed(i2c_tun, 100000);
++	if (err < 0) {
++		printf("Failed to set speed of i2c to 100kHz\n");
 +		return err;
 +	}
 +
@@ -654,7 +624,7 @@ index 0000000000..336ceea3eb
 +	}
 +
 +	// Wait for LOS_CLKIN == 0
-+	timeout = 10;
++	timeout = 20;
 +	do{
 +		err = dm_i2c_reg_read(si5338_chip, 218);
 +		if (err < 0)
@@ -713,7 +683,7 @@ index 0000000000..336ceea3eb
 +	}
 +
 +	// Wait for PLL to be locked
-+	timeout = 10;
++	timeout = 20;
 +	do{
 +		err = dm_i2c_reg_read(si5338_chip, 218);
 +		if (err < 0)
@@ -792,6 +762,22 @@ index 0000000000..336ceea3eb
 +		return err;
 +	}
 +
++	// Set MS_RESET = 1
++	err = i2c_set_bit(si5338_chip, 226, 0x04);
++	if (err < 0)
++	{
++		printf("Failed to write Si5338 on index : 226\n");
++		return err;
++	}
++	udelay(1000);
++	// Set MS_RESET = 0
++	err = i2c_clear_bit(si5338_chip, 226, 0x04);
++	if (err < 0)
++	{
++		printf("Failed to write Si5338 on index : 226\n");
++		return err;
++	}
++
 +	// Set OEB_ALL = 0
 +	err = i2c_clear_bit(si5338_chip, 230, 0x10);
 +	if (err < 0)
@@ -824,7 +810,7 @@ index 0000000000..8e0a5e680d
 \ No newline at end of file
 diff --git a/board/ni/zynq/si5338_reg.h b/board/ni/zynq/si5338_reg.h
 new file mode 100644
-index 0000000000..a384368b5b
+index 0000000000..a8bee0cd0e
 --- /dev/null
 +++ b/board/ni/zynq/si5338_reg.h
 @@ -0,0 +1,437 @@
@@ -978,7 +964,7 @@ index 0000000000..a384368b5b
 +{ 60,0x00,0xFF},
 +{ 61,0x00,0xFF},
 +{ 62,0x00,0x3F},
-+{ 63,0x10,0xFF},
++{ 63,0x1C,0xFF},
 +{ 64,0xFF,0xFF},
 +{ 65,0x09,0xFF},
 +{ 66,0x20,0xFF},
@@ -989,7 +975,7 @@ index 0000000000..a384368b5b
 +{ 71,0x13,0xFF},
 +{ 72,0x00,0xFF},
 +{ 73,0x00,0x3F},
-+{ 74,0x10,0xFF},
++{ 74,0x1C,0xFF},
 +{ 75,0xFF,0xFF},
 +{ 76,0x09,0xFF},
 +{ 77,0x20,0xFF},
@@ -1204,8 +1190,8 @@ index 0000000000..a384368b5b
 +{ 33,0x01,0xFF},
 +{ 34,0x00,0xFF},
 +{ 35,0x00,0xFF},
-+{ 36,0x90,0xFF},
-+{ 37,0x31,0xFF},
++{ 36,0xF0,0xFF},
++{ 37,0x13,0xFF},
 +{ 38,0x00,0xFF},
 +{ 39,0x00,0xFF},
 +{ 40,0x01,0xFF},
@@ -1222,10 +1208,10 @@ index 0000000000..a384368b5b
 +{ 51,0x00,0xFF},
 +{ 52,0x90,0xFF},
 +{ 53,0x31,0xFF},
-+{ 54,0x00,0xFF},
-+{ 55,0x00,0xFF},
-+{ 56,0x01,0xFF},
-+{ 57,0x00,0xFF},
++{ 54,0x2D,0xFF},
++{ 55,0x01,0xFF},
++{ 56,0x00,0xFF},
++{ 57,0x79,0xFF},
 +{ 58,0x00,0xFF},
 +{ 59,0x00,0x0F},
 +{ 60,0x00,0x00},
@@ -1238,10 +1224,10 @@ index 0000000000..a384368b5b
 +{ 67,0x00,0xFF},
 +{ 68,0x90,0xFF},
 +{ 69,0x31,0xFF},
-+{ 70,0x00,0xFF},
-+{ 71,0x00,0xFF},
-+{ 72,0x01,0xFF},
-+{ 73,0x00,0xFF},
++{ 70,0x2D,0xFF},
++{ 71,0x01,0xFF},
++{ 72,0x00,0xFF},
++{ 73,0x79,0xFF},
 +{ 74,0x00,0xFF},
 +{ 75,0x00,0x0F},
 +{ 76,0x00,0x00},
@@ -1249,11 +1235,11 @@ index 0000000000..a384368b5b
 +{ 78,0x00,0x00},
 +{ 79,0x00,0xFF},
 +{ 80,0x00,0xFF},
-+{ 81,0x00,0xFF},
++{ 81,0x01,0xFF},
 +{ 82,0x00,0xFF},
 +{ 83,0x00,0xFF},
-+{ 84,0x90,0xFF},
-+{ 85,0x31,0xFF},
++{ 84,0xF0,0xFF},
++{ 85,0x13,0xFF},
 +{ 86,0x00,0xFF},
 +{ 87,0x00,0xFF},
 +{ 88,0x01,0xFF},
@@ -14688,7 +14674,7 @@ index 0000000000..4c24a4d1ee
 \ No newline at end of file
 diff --git a/include/configs/ni_txgrl.h b/include/configs/ni_txgrl.h
 new file mode 100644
-index 0000000000..8e669a5454
+index 0000000000..bd9b3bdeee
 --- /dev/null
 +++ b/include/configs/ni_txgrl.h
 @@ -0,0 +1,51 @@
@@ -14719,7 +14705,7 @@ index 0000000000..8e669a5454
 +	"ec_disable_swsync=0\0"		\
 +	"ec_image=lib/firmware/ni/ec-txgrl.RW.bin\0"	\
 +	"expand_ec_image=setenv ec_image lib/firmware/ni/ec-txgrl-rev${ec_compat}.RW.bin\0" \
-+	"bootargs=root=/dev/mmcblk0p5 rw rootwait uio_pdrv_genirq.of_id=usrp-uio boot_vers=1.0\0" \
++	"bootargs=root=/dev/mmcblk0p5 rw rootwait uio_pdrv_genirq.of_id=generic-uio boot_vers=1.0\0" \
 +	"load_addr=0x2000000\0"		\
 +	"fit_size=0x800000\0"           \
 +	"fdt_high=0x20000000\0"         \
@@ -14743,6 +14729,3 @@ index 0000000000..8e669a5454
 +
 +
 +#endif /* __CONFIG_NI_TXGRL_H */
--- 
-2.17.1
-
