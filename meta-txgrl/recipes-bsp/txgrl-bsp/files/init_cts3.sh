@@ -7,6 +7,9 @@ OVERLAY_DIR=/lib/firmware
 # Misc pre-overlay stuff
 ##
 
+# Start LEDs rail voltage
+gpioset 0 65=1
+
 # Set SPI NOR buffer direction to be able detect the SPI NOR
 gpioset 0 56=0
 

@@ -8,7 +8,6 @@ Type=simple
 #Restart=always
 #RestartSec=1
 User=root
-ExecStartPre=/usr/bin/gpioset gpiochip0 65=1
 ExecStart=/usr/bin/tgapp
 
 [Install]
