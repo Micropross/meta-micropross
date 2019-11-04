@@ -1,6 +1,6 @@
 [Unit]
 Description=CTS3 Firmware service
-After=network.target
+After=network.target init_cts3.service
 StartLimitIntervalSec=0
 
 [Service]

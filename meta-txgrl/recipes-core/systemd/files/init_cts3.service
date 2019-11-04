@@ -1,8 +1,8 @@
 [Unit]
 Description=Init CTS3 board.
-Before=tgapp.service
 
 [Service]
+Type=oneshot
 ExecStart=/usr/bin/init_cts3.sh
 
 [Install]

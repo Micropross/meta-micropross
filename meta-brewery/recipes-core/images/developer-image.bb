@@ -37,6 +37,7 @@ CORE_IMAGE_EXTRA_INSTALL = "\
 	lsof \
 	mtd-utils \
 	dtc \
+	u-boot-fw-utils \
     "
 
 inherit core-image image-buildinfo

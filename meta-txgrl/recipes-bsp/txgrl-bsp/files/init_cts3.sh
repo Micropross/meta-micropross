@@ -29,3 +29,8 @@ sleep 1
 ##
 # Misc post-overlay stuff
 ##
+mkdir -p /mnt/boot
+mount /dev/mmcblk0p1 /mnt/boot
+
+mkdir -p /mnt/data
+mount /dev/mmcblk0p3 /mnt/data

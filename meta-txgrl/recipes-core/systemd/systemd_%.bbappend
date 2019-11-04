@@ -50,8 +50,8 @@ do_install_append_ni-txgrl() {
 
   # Install tgapp service
   install -d ${D}${systemd_unitdir}/system/
-  install -m 0655 ${WORKDIR}/tgapp.service ${D}${systemd_unitdir}/system/tgapp.service
-  install -m 0655 ${WORKDIR}/init_cts3.service ${D}${systemd_unitdir}/system/init_cts3.service
+  install -m 0644 ${WORKDIR}/tgapp.service ${D}${systemd_unitdir}/system/tgapp.service
+  install -m 0644 ${WORKDIR}/init_cts3.service ${D}${systemd_unitdir}/system/init_cts3.service
   install -d ${D}${sysconfdir}/systemd/system/multi-user.target.wants/
   ln -sf ${systemd_unitdir}/system/tgapp.service ${D}${sysconfdir}/systemd/system/multi-user.target.wants/tgapp.service
   ln -sf ${systemd_unitdir}/system/init_cts3.service ${D}${sysconfdir}/systemd/system/multi-user.target.wants/init_cts3.service
