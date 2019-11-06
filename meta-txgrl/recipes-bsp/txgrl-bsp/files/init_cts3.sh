@@ -1,6 +1,6 @@
 #!/bin/sh
 
-OVERLAY_LIST="txgrl-pl spi-nor interrupts pcie"
+OVERLAY_LIST="txgrl-pl spi-nor interrupts pcie cdma"
 OVERLAY_DIR=/lib/firmware
 
 ##

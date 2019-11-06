@@ -61,10 +61,16 @@
                 interrupts = <0 53 4>;
             };
 
-            uio_cdma@9 {
+            /*uio_cdma@9 {
                 compatible = "generic-uio";
                 interrupt-parent = <&intc>;
                 interrupts = <0 54 4>;
+            };*/
+
+            uio_hdmi@10 {
+                compatible = "generic-uio";
+                interrupt-parent = <&intc>;
+                interrupts = <0 55 1>;
             };
         };
     };
