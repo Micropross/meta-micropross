@@ -38,6 +38,7 @@ CORE_IMAGE_EXTRA_INSTALL = "\
 	mtd-utils \
 	dtc \
 	u-boot-fw-utils \
+    libconfig \
     "
 
 inherit core-image image-buildinfo
