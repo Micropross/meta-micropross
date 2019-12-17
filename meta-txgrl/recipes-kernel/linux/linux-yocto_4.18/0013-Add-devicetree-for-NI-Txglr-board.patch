@@ -12,7 +12,7 @@ index 37a3de760d40..2268ac1b8197 100644
  	zynq-zc706.dtb \
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl.dts b/arch/arm/boot/dts/zynq-ni-txgrl.dts
 new file mode 100644
-index 000000000000..85ae85e25fe7
+index 000000000000..c8aad877b6a3
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl.dts
 @@ -0,0 +1,463 @@
@@ -306,11 +306,11 @@ index 000000000000..85ae85e25fe7
 +		};
 +	};
 +
-+	i2c-switch@70 {
-+		compatible = "nxp,pca9548";
++	i2c-switch@74 {
++		compatible = "nxp,pca9543";
 +		#address-cells = <1>;
 +		#size-cells = <0>;
-+		reg = <0x70>;
++		reg = <0x74>;
 +
 +		i2c-ext@0 {
 +			#address-cells = <1>;
@@ -348,7 +348,7 @@ index 000000000000..85ae85e25fe7
 +	};
 +
 +	i2c-switch@71 {
-+		compatible = "nxp,pca9548";
++		compatible = "nxp,pca9543";
 +		#address-cells = <1>;
 +		#size-cells = <0>;
 +		reg = <0x71>;
@@ -384,7 +384,7 @@ index 000000000000..85ae85e25fe7
 +	};
 +
 +	i2c-switch@74 {
-+		compatible = "nxp,pca9548";
++		compatible = "nxp,pca9545";
 +		#address-cells = <1>;
 +		#size-cells = <0>;
 +		reg = <0x74>;
