@@ -1,0 +1,18 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    fragment@0 {
+
+        target = <&amba>;
+        __overlay__ {
+
+			ni_spycdma: cdma@7e210000 {
+                compatible = "ni,spy-cdma";
+				reg = <0x7e210000 0x10000>;
+                interrupt-parent = <&intc>;
+				interrupts = <0 54 4>;
+            };
+        };
+    };
+};

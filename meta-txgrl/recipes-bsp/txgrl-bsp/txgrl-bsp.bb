@@ -11,7 +11,7 @@ SRC_URI = " file://ec-txgrl-rev1.RW.bin \
 			file://spi-nor.dts \
 			file://pcie.dts \
 			file://interrupts.dts \
-			file://cdma.dts \
+			file://ni_spycdma.dts \
           "
 
 FILES_${PN} = "/lib/firmware/ni/ec-txgrl-rev1.RW.bin \
@@ -20,7 +20,7 @@ FILES_${PN} = "/lib/firmware/ni/ec-txgrl-rev1.RW.bin \
 			   /lib/firmware/spi-nor.dtbo \
 			   /lib/firmware/pcie.dtbo \
 			   /lib/firmware/interrupts.dtbo \
-			   /lib/firmware/cdma.dtbo \
+			   /lib/firmware/ni_spycdma.dtbo \
 			  "
 
 S = "${WORKDIR}"
@@ -32,7 +32,7 @@ do_compile() {
     dtc -@ -o ${WORKDIR}/spi-nor.dtbo ${WORKDIR}/spi-nor.dts
     dtc -@ -o ${WORKDIR}/pcie.dtbo ${WORKDIR}/pcie.dts
     dtc -@ -o ${WORKDIR}/interrupts.dtbo ${WORKDIR}/interrupts.dts
-	dtc -@ -o ${WORKDIR}/cdma.dtbo ${WORKDIR}/cdma.dts
+	dtc -@ -o ${WORKDIR}/ni_spycdma.dtbo ${WORKDIR}/ni_spycdma.dts
 }
 
 do_install() {
@@ -46,5 +46,5 @@ do_install() {
 	install -D -m 0600 ${WORKDIR}/spi-nor.dtbo ${D}/lib/firmware/spi-nor.dtbo
 	install -D -m 0600 ${WORKDIR}/pcie.dtbo ${D}/lib/firmware/pcie.dtbo
 	install -D -m 0600 ${WORKDIR}/interrupts.dtbo ${D}/lib/firmware/interrupts.dtbo
-	install -D -m 0600 ${WORKDIR}/cdma.dtbo ${D}/lib/firmware/cdma.dtbo
+	install -D -m 0600 ${WORKDIR}/ni_spycdma.dtbo ${D}/lib/firmware/ni_spycdma.dtbo
 }
