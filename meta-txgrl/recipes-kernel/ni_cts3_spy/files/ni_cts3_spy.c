@@ -28,7 +28,7 @@
 #include <linux/slab.h>
 
 #define NI_SPYCDMA_DRIVER_MAJOR		242
-#define NI_SPYCDMA_DRIVER_NAME		"ni_spycdma"
+#define NI_SPYCDMA_DRIVER_NAME		"ni_cts3_spy"
 
 #define CDMA_REG_CDMACR				0x00	/* CDMA control register offset */
 #define CDMA_REG_CDMASR				0x04	/* CDMA Status Register */
@@ -90,13 +90,13 @@ struct spycdma_file_data
 inline static u32 spycdma_reg_read(struct spycdma_device *xdev, u32 reg)
 {
 	u32 val = ioread32(xdev->regs + reg);
-	//pr_debug("ni_spycdma: reg r 0x%08x = 0x%08x\n", reg, val);
+	//pr_debug("ni_cts3_spy: reg r 0x%08x = 0x%08x\n", reg, val);
 	return val;
 }
 
 inline static void spycdma_reg_write(struct spycdma_device *xdev, u32 reg, u32 val)
 {
-	//pr_debug("ni_spycdma: reg w 0x%08X = 0x%08X\n", reg, val);
+	//pr_debug("ni_cts3_spy: reg w 0x%08X = 0x%08X\n", reg, val);
 	iowrite32(val, xdev->regs + reg);
 }
 
@@ -108,7 +108,7 @@ static int spycdma_event(struct spycdma_device *xdev)
 	u32 count;
 	int ret = 0;
 
-	pr_debug("ni_spycdma: Enter %s\n", __func__);
+	pr_debug("ni_cts3_spy: Enter %s\n", __func__);
 
 	/* 7. Determine the interrupt source */
 	val = spycdma_reg_read(xdev, CDMA_REG_CDMASR);
@@ -132,7 +132,7 @@ static int spycdma_event(struct spycdma_device *xdev)
 			(val & CDMA_MASK_CDMASR_DMADECERR))
 		{
 			/* Transfer failed */
-			pr_err("ni_spycdma: DMA irq : Transfer failed CDMASR 0x%08X "
+			pr_err("ni_cts3_spy: DMA irq : Transfer failed CDMASR 0x%08X "
 							"CDMASA 0x%08X CDMADA 0x%08X CDMABTT 0x%08X\n",
 							val, spycdma_reg_read(xdev, CDMA_REG_SA),
 							spycdma_reg_read(xdev, CDMA_REG_DA),
@@ -145,26 +145,26 @@ static int spycdma_event(struct spycdma_device *xdev)
 		}
 		else
 		{
-			pr_debug("ni_spycdma: DMA irq : Transfer succeed\n");
+			pr_debug("ni_cts3_spy: DMA irq : Transfer succeed\n");
 			xdev->status = CDMA_STATUS_SUCCEED;
 
 			src = spycdma_reg_read(xdev, CDMA_REG_SA);
 			dest = spycdma_reg_read(xdev, CDMA_REG_DA);
 
-			pr_debug("ni_spycdma: CDMA_REG_SA val 0x%08X\n", src);
-			pr_debug("ni_spycdma: CDMA_REG_DA val 0x%08X\n", dest);
-			pr_debug("ni_spycdma: DMA irq: DMA done\n");
+			pr_debug("ni_cts3_spy: CDMA_REG_SA val 0x%08X\n", src);
+			pr_debug("ni_cts3_spy: CDMA_REG_DA val 0x%08X\n", dest);
+			pr_debug("ni_cts3_spy: DMA irq: DMA done\n");
 		}
 		/* Notify that DMA transfer is done */
 		wake_up(&xdev->wait);
 	}
 	else
 	{
-		pr_err("ni_spycdma: Not a valid DMA IRQ\n");
+		pr_err("ni_cts3_spy: Not a valid DMA IRQ\n");
 		ret = -EAGAIN;
 	}
 
-	pr_debug("ni_spycdma: Leave %s\n", __func__);
+	pr_debug("ni_cts3_spy: Leave %s\n", __func__);
 	return ret;
 }
 
@@ -176,7 +176,7 @@ irqreturn_t spycdma_irq_handler(int irq, void *dev)
 	unsigned long flags;
 	struct spycdma_device *xdev = (struct spycdma_device *)dev;
 
-	pr_debug("ni_spycdma: Enter %s\n", __func__);
+	pr_debug("ni_cts3_spy: Enter %s\n", __func__);
 
 	spin_lock_irqsave(&xdev->lock, flags);
 
@@ -208,7 +208,7 @@ irqreturn_t spycdma_irq_handler(int irq, void *dev)
 		/* Read BTT acknowledge the interrupt */
 		spycdma_reg_read(xdev, CDMA_REG_BTT);
 
-		pr_err("ni_spycdma: %s Unattended CDMA interrupt received done %d\n",
+		pr_err("ni_cts3_spy: %s Unattended CDMA interrupt received done %d\n",
 					__func__, dma_done);
 		ret = IRQ_NONE;
 	}
@@ -220,7 +220,7 @@ irqreturn_t spycdma_irq_handler(int irq, void *dev)
 
 	spin_unlock_irqrestore(&xdev->lock, flags);
 
-	pr_debug("ni_spycdma: Leave %s\n", __func__);
+	pr_debug("ni_cts3_spy: Leave %s\n", __func__);
 	return ret;
 }
 
@@ -230,10 +230,10 @@ static int spycdma_transfer(struct spycdma_file_data *filedata, int write, size_
 	u32 src, dest;
 	struct spycdma_device *xdev = filedata->spycdma_dev;
 
-	pr_debug("ni_spycdma: Enter %s\n", __func__);
+	pr_debug("ni_cts3_spy: Enter %s\n", __func__);
 	if (count == 0)
 	{
-		pr_debug("ni_spycdma: Count = 0\n");
+		pr_debug("ni_cts3_spy: Count = 0\n");
 		return -EINVAL;
 	}
 
@@ -242,7 +242,7 @@ static int spycdma_transfer(struct spycdma_file_data *filedata, int write, size_
 	val = spycdma_reg_read(xdev, CDMA_REG_CDMASR);
 	if (!(val & (CDMA_MASK_CDMASR_IDLE | CDMA_MASK_CDMASR_IOC_IRQ)))
 	{
-		pr_debug("ni_spycdma: %s DMA transfer already running\n", __func__);
+		pr_debug("ni_cts3_spy: %s DMA transfer already running\n", __func__);
 		return -EBUSY;
 	}
 
@@ -268,17 +268,17 @@ static int spycdma_transfer(struct spycdma_file_data *filedata, int write, size_
 	/* 4. Write the transfer destination address */
 	spycdma_reg_write(xdev, CDMA_REG_DA, dest);
 
-	pr_debug("ni_spycdma: SRC = 0x%08x, DEST = 0x%08x\n", src, dest);
+	pr_debug("ni_cts3_spy: SRC = 0x%08x, DEST = 0x%08x\n", src, dest);
 
 	xdev->status = CDMA_STATUS_BUSY;
 
 	if (write)
 	{
-		pr_debug("ni_spycdma: Start CDMA transfer UC => FPGA\n");
+		pr_debug("ni_cts3_spy: Start CDMA transfer UC => FPGA\n");
 	}
 	else
 	{
-		pr_debug("ni_spycdma: Start CDMA transfer FPGA => UC\n");
+		pr_debug("ni_cts3_spy: Start CDMA transfer FPGA => UC\n");
 	}
 
 	/* 5. Write the number of bytes and start the transfer */
@@ -293,7 +293,7 @@ ssize_t spycdma_start_read(struct spycdma_file_data *filedata, size_t count, lof
 	unsigned long flags;
 	struct spycdma_device *xdev = filedata->spycdma_dev;
 
-	pr_debug("ni_spycdma: Enter %s\n", __func__);
+	pr_debug("ni_cts3_spy: Enter %s\n", __func__);
 
 	if(count > filedata->cma_size)
 		count = filedata->cma_size;
@@ -304,7 +304,7 @@ ssize_t spycdma_start_read(struct spycdma_file_data *filedata, size_t count, lof
 	Ret = spycdma_transfer(filedata, 0 /* Read */, count, ppos);
 	if (!Ret)
 	{
-		pr_debug("ni_spycdma: Wait CDMA irq\n");
+		pr_debug("ni_cts3_spy: Wait CDMA irq\n");
 		spin_unlock_irqrestore(&xdev->lock, flags);
 
 		Ret = wait_event_timeout(xdev->wait,
@@ -312,7 +312,7 @@ ssize_t spycdma_start_read(struct spycdma_file_data *filedata, size_t count, lof
 		spin_lock_irqsave(&xdev->lock, flags);
 		if (!Ret)
 		{
-			pr_err("ni_spycdma: Transfer timeout\n");
+			pr_err("ni_cts3_spy: Transfer timeout\n");
 			/* reset the CDMA */
 			spycdma_reg_write(xdev, CDMA_REG_CDMACR, CDMA_MASK_CDMACR_RESET);
 			xdev->status = CDMA_STATUS_FREE;
@@ -320,13 +320,13 @@ ssize_t spycdma_start_read(struct spycdma_file_data *filedata, size_t count, lof
 		}
 		else if (xdev->status == CDMA_STATUS_SUCCEED)
 		{
-			pr_debug("ni_spycdma: DMA transfer succeed count = %u\n", count);
+			pr_debug("ni_cts3_spy: DMA transfer succeed count = %u\n", count);
 			Ret = count;
 			xdev->status = CDMA_STATUS_FREE;
 		}
 		else
 		{
-			pr_debug("ni_spycdma: DMA transfer failed\n");
+			pr_debug("ni_cts3_spy: DMA transfer failed\n");
 			/* reset the CDMA */
 			spycdma_reg_write(xdev, CDMA_REG_CDMACR, CDMA_MASK_CDMACR_RESET);
 			xdev->status = CDMA_STATUS_FREE;
@@ -336,7 +336,7 @@ ssize_t spycdma_start_read(struct spycdma_file_data *filedata, size_t count, lof
 
 	spin_unlock_irqrestore(&xdev->lock, flags);
 
-	pr_debug("ni_spycdma: Leave %s\n", __func__);
+	pr_debug("ni_cts3_spy: Leave %s\n", __func__);
 
 	return Ret;
 }
@@ -347,7 +347,7 @@ ssize_t spycdma_start_write(struct spycdma_file_data *filedata, size_t count, lo
 	unsigned long flags;
 	struct spycdma_device *xdev = filedata->spycdma_dev;
 
-	pr_debug("ni_spycdma: Enter %s\n", __func__);
+	pr_debug("ni_cts3_spy: Enter %s\n", __func__);
 
 	/* DMA buffer size is max count for one transfer */
 	if(count > filedata->cma_size)
@@ -365,20 +365,20 @@ ssize_t spycdma_start_write(struct spycdma_file_data *filedata, size_t count, lo
 		spin_lock_irqsave(&xdev->lock, flags);
 		if (!ret)
 		{
-			pr_err("ni_spycdma: Write transfer timeout dma.status\n");
+			pr_err("ni_cts3_spy: Write transfer timeout dma.status\n");
 			xdev->status = CDMA_STATUS_FREE;
 			ret = -EBUSY;
 		}
 		else
 		{
-			pr_debug("ni_spycdma: DMA transfer succeed count = %u\n", count);
+			pr_debug("ni_cts3_spy: DMA transfer succeed count = %u\n", count);
 			ret = count;
 		}
 	}
 
 	spin_unlock_irqrestore(&xdev->lock, flags);
 
-	pr_debug("ni_spycdma: Leave %s\n", __func__);
+	pr_debug("ni_cts3_spy: Leave %s\n", __func__);
 
 	return ret;
 }
@@ -387,11 +387,11 @@ static int spycdma_alloc_cma(struct spycdma_file_data *filedata, ssize_t size)
 {
 	int err = 0;
 
-	pr_debug("ni_spycdma: Allocate CMA buffer\n");
+	pr_debug("ni_cts3_spy: Allocate CMA buffer\n");
 
 	if (dma_set_mask_and_coherent(filedata->spycdma_dev->dev, DMA_BIT_MASK(32)))
 	{
-		pr_warn("ni_spycdma: No suitable CMA available\n");
+		pr_warn("ni_cts3_spy: No suitable CMA available\n");
 		return -ENOMEM;
 	}
 
@@ -400,7 +400,7 @@ static int spycdma_alloc_cma(struct spycdma_file_data *filedata, ssize_t size)
 	if (!filedata->cma_virt_addr)
 	{
 		filedata->cma_size = 0;
-		pr_err("ni_spycdma: CMA buffer allocation failed size 0x%08X\n", size);
+		pr_err("ni_cts3_spy: CMA buffer allocation failed size 0x%08X\n", size);
 		err = -ENOMEM;
 	}
 	else
@@ -408,7 +408,7 @@ static int spycdma_alloc_cma(struct spycdma_file_data *filedata, ssize_t size)
 		filedata->cma_size = size;
 	}
 
-	pr_debug("ni_spycdma: CMA Buffer Allocation: %#x -> %#x (size = %#x)\n",
+	pr_debug("ni_cts3_spy: CMA Buffer Allocation: %#x -> %#x (size = %#x)\n",
 		(unsigned int)filedata->cma_virt_addr,
 		(unsigned int)filedata->cma_phys_addr,
 		filedata->cma_size);
@@ -417,7 +417,7 @@ static int spycdma_alloc_cma(struct spycdma_file_data *filedata, ssize_t size)
 
 static void spycdma_free_cma(struct spycdma_file_data *filedata)
 {
-	pr_debug("ni_spycdma: Free DMA buffer\n");
+	pr_debug("ni_cts3_spy: Free DMA buffer\n");
 
 	/* Free buffer */
 	if (filedata->cma_phys_addr)
@@ -433,7 +433,7 @@ static int spycdma_fo_open(struct inode *inode, struct file *file)
 {
 	struct spycdma_file_data *filedata;
 
-	pr_debug("ni_spycdma: open\n");
+	pr_debug("ni_cts3_spy: open\n");
 
 	// Allocate file persistent data struct
 	filedata = kzalloc(sizeof(filedata), GFP_KERNEL);
@@ -451,7 +451,7 @@ static int spycdma_fo_release(struct inode *inode, struct file *file)
 {
 	struct spycdma_file_data *filedata = (struct spycdma_file_data *) file->private_data;
 
-	pr_debug("ni_spycdma: release\n");
+	pr_debug("ni_cts3_spy: release\n");
 
 	// CMA buffer allocated ?
 	if (filedata->cma_phys_addr)
@@ -468,7 +468,7 @@ static ssize_t spycdma_fo_read(struct file *file, char __user *user_buffer, size
 	ssize_t ret;
 	struct spycdma_file_data *filedata = (struct spycdma_file_data *) file->private_data;
 
-	pr_debug("ni_spycdma: read (size = %u, offset %llu)\n",
+	pr_debug("ni_cts3_spy: read (size = %u, offset %llu)\n",
 			size, *offset);
 
 	// Check offset and DDR size
@@ -502,7 +502,7 @@ static ssize_t spycdma_fo_write(struct file *file, const char __user *user_buffe
 	ssize_t ret;
 	struct spycdma_file_data *filedata = (struct spycdma_file_data *) file->private_data;
 
-	pr_debug("ni_spycdma: write (size = %u, offset %llu)\n",
+	pr_debug("ni_cts3_spy: write (size = %u, offset %llu)\n",
 			size, *offset);
 
 	// Check offset and DDR size
@@ -537,7 +537,7 @@ static int spycdma_fo_mmap(struct file *file, struct vm_area_struct *vma)
 	struct spycdma_file_data *filedata = (struct spycdma_file_data *) file->private_data;
 	size_t size;
 
-	pr_debug("ni_spycdma: mmap\n");
+	pr_debug("ni_cts3_spy: mmap\n");
 
 	// Alloc CMA buffer
 	size = vma->vm_end - vma->vm_start;
@@ -549,7 +549,7 @@ static int spycdma_fo_mmap(struct file *file, struct vm_area_struct *vma)
 	err = spycdma_alloc_cma(filedata, size);
 	if (err)
 	{
-		pr_warn("ni_spycdma: Cannot alloc CMA buffer\n");
+		pr_warn("ni_cts3_spy: Cannot alloc CMA buffer\n");
 		return -ENOMEM;
 	}
 
@@ -558,7 +558,7 @@ static int spycdma_fo_mmap(struct file *file, struct vm_area_struct *vma)
 	err = remap_pfn_range(vma, vma->vm_start, filedata->cma_phys_addr >> PAGE_SHIFT, size, vma->vm_page_prot);
 	if (err)
 	{
-		pr_err("ni_spycdma: Cannot remap buffer to mmap\n");
+		pr_err("ni_cts3_spy: Cannot remap buffer to mmap\n");
 		return err;
 	}
 
@@ -627,7 +627,7 @@ static int spycdma_probe(struct platform_device *pdev)
 		return -ENXIO;
 	}
 
-	pr_debug("ni_spycdma: Base address = %#x\n", io->start);
+	pr_debug("ni_cts3_spy: Base address = %#x\n", io->start);
 
 	xdev->regs = devm_ioremap_resource(&pdev->dev, io);
 	if (IS_ERR(xdev->regs))
@@ -649,7 +649,7 @@ static int spycdma_probe(struct platform_device *pdev)
 		return err;
 	}
 
-	pr_debug("ni_spycdma: IRQ = %d\n", xdev->irq);
+	pr_debug("ni_cts3_spy: IRQ = %d\n", xdev->irq);
 
 	// Init device var
 	xdev->dev = &pdev->dev;
@@ -665,7 +665,7 @@ static int spycdma_probe(struct platform_device *pdev)
 							1, NI_SPYCDMA_DRIVER_NAME);
 	if (err)
 	{
-		pr_err("ni_spycdma: Cannot register cdev\n");
+		pr_err("ni_cts3_spy: Cannot register cdev\n");
 		return err;
 	}
 

@@ -1,4 +1,4 @@
-obj-m := ni_spycdma.o
+obj-m := ni_cts3_spy.o
 
 SRC := $(shell pwd)
 

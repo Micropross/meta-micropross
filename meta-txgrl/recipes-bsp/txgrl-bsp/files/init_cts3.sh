@@ -1,6 +1,6 @@
 #!/bin/sh
 
-OVERLAY_LIST="txgrl-pl spi-nor interrupts pcie ni_spycdma"
+OVERLAY_LIST="txgrl-pl spi-nor interrupts pcie ni_cts3_spy"
 OVERLAY_DIR=/lib/firmware
 
 ##
@@ -27,7 +27,7 @@ done
 sleep 1
 
 # Insert spy driver
-modprobe ni_spycdma
+modprobe ni_cts3_spy
 
 # Create /dev/spy0 node
 mknod /dev/spy0 c 242 0
