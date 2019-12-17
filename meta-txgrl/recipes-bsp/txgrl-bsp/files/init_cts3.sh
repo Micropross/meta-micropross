@@ -32,6 +32,12 @@ modprobe ni_cts3_spy
 # Create /dev/spy0 node
 mknod /dev/spy0 c 242 0
 
+# Insert DAQ driver
+modprobe ni_cts3_daq
+
+# Create DAQ node
+mknod /dev/daq0 c 240 0
+
 ##
 # Misc post-overlay stuff
 ##
