@@ -1,6 +1,6 @@
 #!/bin/sh
 
-OVERLAY_LIST="txgrl-pl spi-nor interrupts pcie cdma"
+OVERLAY_LIST="txgrl-pl spi-nor interrupts pcie ni_spycdma"
 OVERLAY_DIR=/lib/firmware
 
 ##
@@ -25,6 +25,12 @@ done
 
 # Wait for kernel to start hardware driver
 sleep 1
+
+# Insert spy driver
+modprobe ni_spycdma
+
+# Create /dev/spy0 node
+mknod /dev/spy0 c 242 0
 
 ##
 # Misc post-overlay stuff
