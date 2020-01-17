@@ -39,6 +39,8 @@ CORE_IMAGE_EXTRA_INSTALL = "\
 	dtc \
 	u-boot-fw-utils \
     libconfig \
+    rt-tests \
+    stress-ng \
     "
 
 inherit core-image image-buildinfo

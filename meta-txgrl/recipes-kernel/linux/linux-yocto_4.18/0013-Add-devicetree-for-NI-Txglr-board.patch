@@ -12,10 +12,10 @@ index 37a3de760d40..2268ac1b8197 100644
  	zynq-zc706.dtb \
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl.dts b/arch/arm/boot/dts/zynq-ni-txgrl.dts
 new file mode 100644
-index 000000000000..c046c5d64a40
+index 000000000000..d0f108d8c7da
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl.dts
-@@ -0,0 +1,463 @@
+@@ -0,0 +1,453 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
 + * National Instruments Micropross Project Txgrl
@@ -253,16 +253,6 @@ index 000000000000..c046c5d64a40
 +
 +&uart1 {
 +	status = "okay";
-+};
-+
-+/* we use the ARM global timer */
-+&ttc0 {
-+	status = "disabled";
-+};
-+
-+/* we use the ARM global timer */
-+&ttc1 {
-+	status = "disabled";
 +};
 +
 +&i2c0 {
