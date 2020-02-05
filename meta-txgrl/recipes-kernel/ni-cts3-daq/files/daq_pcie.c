@@ -151,28 +151,35 @@ irqreturn_t PCIE_IRQHandler(int irq, void *data)
 {
 	struct PCIE_device * pDev = data;
 	unsigned long flags;
-	u32 Ipr;
+	u32 IprReg;
 
 	spin_lock_irqsave(&gPCIEDeviceListLock, flags);
-	Ipr = PCIE_INTCtrlReadReg(pDev, INTC_REG_ISR);
-	pDev->IrqPending |= (Ipr & ~INTC_CDMA_MASK);
 
+	// Read Interrupt Pending Register
+	IprReg = PCIE_INTCtrlReadReg(pDev, INTC_REG_IPR);
+
+	// Remove private interrupts (cf: CDMA)
+	pDev->IrqPending |= (IprReg & ~INTC_CDMA_MASK);
+
+	PCIE_INTCtrlWriteReg(pDev, INTC_REG_CIE, pDev->IrqPending); /* Disable IRQ */
 	PCIE_INTCtrlWriteReg(pDev, INTC_REG_IAR, pDev->IrqPending); /* Acknowledge*/
-	PCIE_INTCtrlWriteReg(pDev, INTC_REG_CIE, pDev->IrqPending);
 
-	DPRINT("IRQ Occured : 0x%08X", Ipr);
+	DPRINT("IsrReg : 0x%08X", IprReg);
+	//pr_info("IsrReg : 0x%08X\n", IprReg);
 
-	if((Ipr & INTC_CDMA_MASK) == INTC_CDMA_MASK)
+	// Handle CDMA Interrupt
+	if((IprReg & INTC_CDMA_MASK) == INTC_CDMA_MASK)
 	{
 		PCI_CDMAIRQHandler(irq, &pDev->Dma);
 		PCIE_INTCtrlWriteReg(pDev, INTC_REG_IAR, INTC_CDMA_MASK);
 	}
 
-//	pDev->IrqPending &= ~INTC_CDMA_MASK;
 	spin_unlock_irqrestore(&gPCIEDeviceListLock, flags);
 
 	if(pDev->IrqPending)
+	{
 		wake_up(&pDev->wait);
+	}
 
 	return IRQ_HANDLED;
 }
@@ -354,6 +361,7 @@ void PCIE_UnregisterDevice( struct PCIE_device * pDdev)
 inline static int PCIE_EnableIrq(const struct PCIE_device * pDev,
 		uint32_t IrqMask)
 {
+	//pr_info("Enable IRQ : %#x\n", IrqMask);
 	PCIE_INTCtrlWriteReg(pDev, INTC_REG_SIE, IrqMask);
 	return 0;
 }
@@ -361,6 +369,7 @@ inline static int PCIE_EnableIrq(const struct PCIE_device * pDev,
 inline static int PCIE_DisableIrq(const struct PCIE_device * pDev,
 		uint32_t IrqMask)
 {
+	//pr_info("Disable IRQ : %#x\n", IrqMask);
 	PCIE_INTCtrlWriteReg(pDev, INTC_REG_CIE, IrqMask);
 	return 0;
 }
@@ -369,6 +378,11 @@ inline static int PCIE_DisableIrq(const struct PCIE_device * pDev,
 static void PCIE_INTCtrlInit(const struct PCIE_device * pDev)
 {
 	PCIE_INTCtrlWriteReg(pDev, INTC_REG_MER, 0);
+
+	// Disable all interrupts
+	PCIE_INTCtrlWriteReg(pDev, INTC_REG_CIE, 0xFFFFFFFF);
+
+	// Acknowledge all interrupts
 	PCIE_INTCtrlWriteReg(pDev, INTC_REG_IAR, 0xFFFFFFFF);
 
 	/* Just enable CDMA irq */
@@ -653,15 +667,15 @@ long PCIE_Ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	}
 	case PCIEIOC_ACKNOWLEDGE_IRQ:
 	{
-		uint32_t IrqMask, Ipr;
+		uint32_t IrqMask, IprReg;
 		ret = __get_user(IrqMask, (uint32_t __user *)arg);
 
 		if(ret == 0)
 		{
 			spin_lock_irqsave(&gPCIEDeviceListLock, flags);
 			pDev->IrqPending &= ~IrqMask;
-			Ipr = PCIE_INTCtrlReadReg(pDev, INTC_REG_ISR);
-			pDev->IrqPending |= (Ipr & ~INTC_CDMA_MASK);
+			IprReg = PCIE_INTCtrlReadReg(pDev, INTC_REG_IPR);
+			pDev->IrqPending |= (IprReg & ~INTC_CDMA_MASK);
 			PCIE_INTCtrlWriteReg(pDev, INTC_REG_IAR, pDev->IrqPending); /* Acknowledge*/
 			if(pDev->IrqEnabled & IrqMask)
 				PCIE_EnableIrq(pDev, IrqMask);

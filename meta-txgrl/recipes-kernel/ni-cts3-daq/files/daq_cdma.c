@@ -306,6 +306,7 @@ ssize_t PCI_CDMARead(struct PCIE_dma *pDma, struct PCIE_cma_device *cma_dev, siz
 {
 	ssize_t Ret = 0;
 	unsigned long flags;
+	u32 src, dest, size;
 
 	DPRINT("Enter");
 	if(count > cma_dev->size)
@@ -325,7 +326,12 @@ ssize_t PCI_CDMARead(struct PCIE_dma *pDma, struct PCIE_cma_device *cma_dev, siz
 		spin_lock_irqsave(&pDma->lock, flags);
 		if (!Ret)
 		{
-			printk(KERN_ERR "Transfer timeout\n");
+			src = PCIE_CDMAReadReg(pDma, CDMA_REG_SA);
+			dest = PCIE_CDMAReadReg(pDma, CDMA_REG_DA);
+			size = PCIE_CDMAReadReg(pDma, CDMA_REG_BTT);
+
+			pr_err("ni_cts3_daq: Transfer timeout (SRC = %#x, DEST = %#x, SIZE = %#x)\n", src, dest, size);
+
 			/* reset the CDMA */
 			PCIE_CDMAWriteReg(pDma, CDMA_REG_CDMACR,
 					  CDMA_MASK_CDMACR_RESET);
