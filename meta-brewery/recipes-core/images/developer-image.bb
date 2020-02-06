@@ -41,6 +41,11 @@ CORE_IMAGE_EXTRA_INSTALL = "\
     libconfig \
     rt-tests \
     stress-ng \
+    pcsc-lite \
+    pure-ftpd \
+    zeroconf \
+    libftdi \
+    libusb1 \
     "
 
 inherit core-image image-buildinfo
