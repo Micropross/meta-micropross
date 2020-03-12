@@ -12,10 +12,10 @@ index 37a3de760d40..2268ac1b8197 100644
  	zynq-zc706.dtb \
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl.dts b/arch/arm/boot/dts/zynq-ni-txgrl.dts
 new file mode 100644
-index 000000000000..d0f108d8c7da
+index 000000000000..995f47ae8173
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl.dts
-@@ -0,0 +1,453 @@
+@@ -0,0 +1,452 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
 + * National Instruments Micropross Project Txgrl
@@ -262,8 +262,7 @@ index 000000000000..d0f108d8c7da
 +	embedded-controller@1e {
 +		status = "okay";
 +		reg = <0x1e>;
-+		compatible = "ni,embedded-controller-i2c",
-+			     "google,cros-ec-i2c";
++		compatible = "google,cros-ec-i2c";
 +		interrupts = <0 IRQ_TYPE_EDGE_FALLING>;
 +		interrupt-parent = <&gpio0>;
 +		google,has-vbc-nvram;
@@ -296,11 +295,11 @@ index 000000000000..d0f108d8c7da
 +		};
 +	};
 +
-+	i2c-switch@70 {
++	i2c-switch@74 {
 +		compatible = "nxp,pca9543";
 +		#address-cells = <1>;
 +		#size-cells = <0>;
-+		reg = <0x70>;
++		reg = <0x74>;
 +
 +		i2c-ext@0 {
 +			#address-cells = <1>;
