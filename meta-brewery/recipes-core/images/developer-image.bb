@@ -46,9 +46,12 @@ CORE_IMAGE_EXTRA_INSTALL = "\
     zeroconf \
     libftdi \
     libusb1 \
+    gnutls \
+    avahi-autoipd \
+    sqlcipher \
     "
 
 inherit core-image image-buildinfo
 TOOLCHAIN_HOST_TASK += "nativesdk-python3-setuptools \
                        "
-TOOLCHAIN_TARGET_TASK_append = " kernel-dev kernel-devsrc"
+TOOLCHAIN_TARGET_TASK_append = " kernel-dev kernel-devsrc libftdi-staticdev libusb1-staticdev"
