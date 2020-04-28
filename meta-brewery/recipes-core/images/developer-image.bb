@@ -49,6 +49,7 @@ CORE_IMAGE_EXTRA_INSTALL = "\
     gnutls \
     avahi-autoipd \
     sqlcipher \
+    gpgme \
     "
 
 inherit core-image image-buildinfo
