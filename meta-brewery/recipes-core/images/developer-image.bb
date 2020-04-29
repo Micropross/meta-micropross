@@ -50,6 +50,8 @@ CORE_IMAGE_EXTRA_INSTALL = "\
     avahi-autoipd \
     sqlcipher \
     gpgme \
+    nginx \
+    php \
     "
 
 inherit core-image image-buildinfo
