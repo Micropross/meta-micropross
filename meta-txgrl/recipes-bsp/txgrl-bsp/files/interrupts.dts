@@ -72,6 +72,12 @@
                 interrupt-parent = <&intc>;
                 interrupts = <0 55 1>;
             };
+
+            uio_mcdma@11 {
+                compatible = "generic-uio";
+                interrupt-parent = <&intc>;
+                interrupts = <0 56 4>;
+            };
         };
     };
 };
