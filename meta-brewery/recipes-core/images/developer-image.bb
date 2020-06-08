@@ -52,6 +52,8 @@ CORE_IMAGE_EXTRA_INSTALL = "\
     gpgme \
     nginx \
     php \
+    php-cli \
+    php-cgi \
     "
 
 inherit core-image image-buildinfo
