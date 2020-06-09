@@ -13,6 +13,43 @@ gpioset 0 65=1
 # Set SPI NOR buffer direction to be able detect the SPI NOR
 gpioset 0 56=0
 
+# Check FPGA binary md5
+FPGA_SYMBOLIC="/lib/firmware/top.bin"
+FPGA_COUNT=`ls -l /lib/firmware/top_*.bin | wc -l`
+if [ "$FPGA_COUNT" -eq "1" ]; then
+    FPGA_BIN=`ls /lib/firmware/top_*bin`
+    MD5_FILE=`md5sum /lib/firmware/top_*.bin | cut -c -32`
+    MD5_NAME=`ls /lib/firmware/top_*.bin | cut -d "_" -f 2 | cut -c -32`
+
+    if [ "$MD5_FILE" = "$MD5_NAME" ]; then
+        # Symbolic file exist and point to the correct file
+        if [ -f /lib/firmware/top.bin ]; then
+            if [ `readlink -f $FPGA_SYMBOLIC` != "$FPGA_BIN" ]; then
+                # Remore symbolic link
+                rm $FPGA_SYMBOLIC
+
+                # Create symbolic file
+                ln -s /lib/firmware/top_*.bin /lib/firmware/top.bin
+            fi
+        else
+            # Create symbolic file
+            ln -s /lib/firmware/top_*.bin /lib/firmware/top.bin
+        fi
+    else
+        # Error md5
+        echo "Bad FPGA checksum: $FPGA_BIN"
+
+        # Remore possible symbolic link
+        rm $FPGA_SYMBOLIC > /dev/null
+    fi
+else
+    # None or multiple binary
+    echo "None or multiple FPGA binary files."
+
+    # Remore possible symbolic link
+    rm $FPGA_SYMBOLIC > /dev/null
+fi
+
 ##
 # Load overlays
 ##
