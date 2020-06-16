@@ -23,10 +23,10 @@ if [ "$FPGA_COUNT" -eq "1" ]; then
 
     if [ "$MD5_FILE" = "$MD5_NAME" ]; then
         # Symbolic file exist and point to the correct file
-        if [ -f /lib/firmware/top.bin ]; then
+        if [ -L $FPGA_SYMBOLIC ]; then
             if [ `readlink -f $FPGA_SYMBOLIC` != "$FPGA_BIN" ]; then
                 # Remore symbolic link
-                rm $FPGA_SYMBOLIC
+                rm -f $FPGA_SYMBOLIC
 
                 # Create symbolic file
                 ln -s /lib/firmware/top_*.bin /lib/firmware/top.bin
