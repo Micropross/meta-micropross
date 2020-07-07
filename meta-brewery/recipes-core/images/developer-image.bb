@@ -54,6 +54,7 @@ CORE_IMAGE_EXTRA_INSTALL = "\
     php \
     php-cli \
     php-cgi \
+    perf \
     "
 
 inherit core-image image-buildinfo
