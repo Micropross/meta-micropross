@@ -14,12 +14,13 @@ gpioset 0 65=1
 gpioset 0 56=0
 
 # Check FPGA binary md5
+FPGA_PATTERN="/lib/firmware/fpga-mb_*.bin"
 FPGA_SYMBOLIC="/lib/firmware/top.bin"
-FPGA_COUNT=`ls -l /lib/firmware/top_*.bin | wc -l`
+FPGA_COUNT=`ls -l $FPGA_PATTERN | wc -l`
 if [ "$FPGA_COUNT" -eq "1" ]; then
-    FPGA_BIN=`ls /lib/firmware/top_*bin`
-    MD5_FILE=`md5sum /lib/firmware/top_*.bin | cut -c -32`
-    MD5_NAME=`ls /lib/firmware/top_*.bin | cut -d "_" -f 2 | cut -c -32`
+    FPGA_BIN=`ls $FPGA_PATTERN`
+    MD5_FILE=`md5sum $FPGA_PATTERN | cut -c -32`
+    MD5_NAME=`ls $FPGA_PATTERN | cut -d "_" -f 3 | cut -c -32`
 
     if [ "$MD5_FILE" = "$MD5_NAME" ]; then
         # Symbolic file exist and point to the correct file
@@ -29,11 +30,11 @@ if [ "$FPGA_COUNT" -eq "1" ]; then
                 rm -f $FPGA_SYMBOLIC
 
                 # Create symbolic file
-                ln -s /lib/firmware/top_*.bin /lib/firmware/top.bin
+                ln -s $FPGA_PATTERN $FPGA_SYMBOLIC
             fi
         else
             # Create symbolic file
-            ln -s /lib/firmware/top_*.bin /lib/firmware/top.bin
+            ln -s $FPGA_PATTERN $FPGA_SYMBOLIC
         fi
     else
         # Error md5
