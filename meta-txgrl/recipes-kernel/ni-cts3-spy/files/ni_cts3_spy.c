@@ -26,6 +26,7 @@
 #include <linux/of_reserved_mem.h>
 #include <linux/interrupt.h>
 #include <linux/slab.h>
+#include <linux/mutex.h>
 
 #define NI_SPYCDMA_DRIVER_MAJOR		242
 #define NI_SPYCDMA_DRIVER_NAME		"ni_cts3_spy"
@@ -72,6 +73,7 @@ struct spycdma_device
 	struct cdev cdev;
 
 	struct spinlock lock;		/* Used for avoiding concurrent access to the dma data */
+	struct mutex xfer_mutex;	/* Used for avoiding concurrent dma transfer */
 	wait_queue_head_t wait;		/* Device work queue */
 	enum CDMA_STATUS status;	/* DMA status */
 };
@@ -292,11 +294,15 @@ ssize_t spycdma_start_read(struct spycdma_file_data *filedata, size_t count, lof
 	ssize_t Ret = 0;
 	unsigned long flags;
 	struct spycdma_device *xdev = filedata->spycdma_dev;
+	u32 src, dest, size;
 
 	pr_debug("ni_cts3_spy: Enter %s\n", __func__);
 
 	if(count > filedata->cma_size)
 		count = filedata->cma_size;
+
+	/* Allow only one transfer at time */
+	mutex_lock_interruptible(&xdev->xfer_mutex);
 
 	/* Lock DMA */
 	spin_lock_irqsave(&xdev->lock, flags);
@@ -312,7 +318,11 @@ ssize_t spycdma_start_read(struct spycdma_file_data *filedata, size_t count, lof
 		spin_lock_irqsave(&xdev->lock, flags);
 		if (!Ret)
 		{
-			pr_err("ni_cts3_spy: Transfer timeout\n");
+			src = spycdma_reg_read(xdev, CDMA_REG_SA);
+			dest = spycdma_reg_read(xdev, CDMA_REG_DA);
+			size = spycdma_reg_read(xdev, CDMA_REG_BTT);
+
+			pr_err("ni_cts3_spy: Transfer timeout (SRC = %#x, DEST = %#x, SIZE = %#x)\n", src, dest, size);
 			/* reset the CDMA */
 			spycdma_reg_write(xdev, CDMA_REG_CDMACR, CDMA_MASK_CDMACR_RESET);
 			xdev->status = CDMA_STATUS_FREE;
@@ -336,6 +346,8 @@ ssize_t spycdma_start_read(struct spycdma_file_data *filedata, size_t count, lof
 
 	spin_unlock_irqrestore(&xdev->lock, flags);
 
+	mutex_unlock(&xdev->xfer_mutex);
+
 	pr_debug("ni_cts3_spy: Leave %s\n", __func__);
 
 	return Ret;
@@ -352,6 +364,9 @@ ssize_t spycdma_start_write(struct spycdma_file_data *filedata, size_t count, lo
 	/* DMA buffer size is max count for one transfer */
 	if(count > filedata->cma_size)
 		count = filedata->cma_size;
+
+	/* Allow only one transfer at time */
+	mutex_lock_interruptible(&xdev->xfer_mutex);
 
 	/* Lock DMA */
 	spin_lock_irqsave(&xdev->lock, flags);
@@ -377,6 +392,8 @@ ssize_t spycdma_start_write(struct spycdma_file_data *filedata, size_t count, lo
 	}
 
 	spin_unlock_irqrestore(&xdev->lock, flags);
+
+	mutex_unlock(&xdev->xfer_mutex);
 
 	pr_debug("ni_cts3_spy: Leave %s\n", __func__);
 
@@ -655,6 +672,7 @@ static int spycdma_probe(struct platform_device *pdev)
 	xdev->dev = &pdev->dev;
 	xdev->status = CDMA_STATUS_FREE;
 	spin_lock_init(&xdev->lock);
+	mutex_init(&xdev->xfer_mutex);
 	init_waitqueue_head(&xdev->wait);
 
 	// Save driver data
