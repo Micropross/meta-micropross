@@ -1,26 +1,27 @@
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 37a3de760d40..2268ac1b8197 100644
+index 37a3de760d40..e5f8edde2395 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -1101,6 +1101,7 @@ dtb-$(CONFIG_ARCH_VT8500) += \
+@@ -1101,6 +1101,8 @@ dtb-$(CONFIG_ARCH_VT8500) += \
  dtb-$(CONFIG_ARCH_ZYNQ) += \
  	zynq-cc108.dtb \
  	zynq-microzed.dtb \
-+	zynq-ni-txgrl.dtb \
++	zynq-ni-txgrl-reva.dtb \
++	zynq-ni-txgrl-revb.dtb \
  	zynq-parallella.dtb \
  	zynq-zc702.dtb \
  	zynq-zc706.dtb \
-diff --git a/arch/arm/boot/dts/zynq-ni-txgrl.dts b/arch/arm/boot/dts/zynq-ni-txgrl.dts
+diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts b/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
 new file mode 100644
-index 000000000000..995f47ae8173
+index 000000000000..fc94e0597da9
 --- /dev/null
-+++ b/arch/arm/boot/dts/zynq-ni-txgrl.dts
++++ b/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
 @@ -0,0 +1,452 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
-+ * National Instruments Micropross Project Txgrl
++ * NI Micropross Project Txgrl
 + *
-+ * Copyright (c) 2019 National Instruments Corp.
++ * Copyright (c) 2020 NI Corp.
 + *
 + */
 +
@@ -404,6 +405,470 @@ index 000000000000..995f47ae8173
 +				reg = <0x75>;
 +				gpio-controller;
 +				#gpio-cells = <2>;
++			};
++		};
++	};
++};
++
++&gpio0 {
++	status = "okay";
++};
++
++&clkc {
++	ps-clk-frequency = <33333333>;
++	fclk-enable = <0xf>;
++};
++
++&spi0 {
++	status = "okay";
++};
++
++&spi1 {
++	status = "disabled";
++};
++
++&gem0 {
++	status = "okay";
++	phy-mode = "rgmii-id";
++	phy-handle = <&ethernet_phy0>;
++
++	nvmem-cells = <&eth0_addr>;
++	nvmem-cell-names = "mac-address";
++
++	rxc-skew-ps = <1860>;
++	rxdv-skew-ps = <0>;
++
++	rxd0-skew-ps = <0>;
++	rxd1-skew-ps = <0>;
++	rxd2-skew-ps = <0>;
++	rxd3-skew-ps = <0>;
++
++	txd0-skew-ps = <0>;
++	txd1-skew-ps = <0>;
++	txd2-skew-ps = <0>;
++	txd3-skew-ps = <0>;
++
++	txc-skew-ps = <1860>;
++	txen-skew-ps = <0>;
++
++	ethernet_phy0: ethernet-phy@7 {
++		reg = <7>;
++		reset-gpios = <&gpio0 7 GPIO_ACTIVE_LOW>;
++	};
++};
++
++&usb0 {
++	status = "okay";
++	dr_mode = "host";
++	usb-phy = <&usb_phy0>;
++};
++
++&amba {
++	ocm: sram@fffc0000 {
++		compatible = "mmio-sram";
++		reg = <0xfffc0000 0x10000>;
++	};
++};
+diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
+new file mode 100644
+index 000000000000..54f26b9e3401
+--- /dev/null
++++ b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
+@@ -0,0 +1,458 @@
++// SPDX-License-Identifier: (GPL-2.0 OR X11)
++/*
++ * NI Micropross Project Txgrl
++ *
++ * Copyright (c) 2020 NI Corp.
++ *
++ */
++
++/dts-v1/;
++
++#include <dt-bindings/input/input.h>
++#include <dt-bindings/interrupt-controller/irq.h>
++#include <dt-bindings/gpio/gpio.h>
++#include "zynq-7000.dtsi"
++
++/ {
++	model = "NI Micropross Project Txgrl";
++	compatible = "micropross,zynq-txgrl-revb", "xlnx,zynq-7000";
++
++	aliases {
++		ethernet0 = &gem0;
++		serial0 = &uart0;
++		serial1 = &uart1;
++		spi0 = &spi0;
++		i2c0 = &i2c0;
++		i2c1 = &i2c1;
++		i2c2 = &tun;
++	};
++
++	memory {
++		device_type = "memory";
++		reg = <0x0 0x40000000>;
++	};
++
++	chosen {
++		bootargs = "earlyprintk  uio_pdrv_genirq.of_id=generic-uio";
++		stdout-path = "serial0:115200n8";
++	};
++
++	gpio-keys {
++		compatible = "gpio-keys";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		power-button {
++			label = "Power Button";
++			linux,code = <KEY_POWER>;
++			gpios = <&gpio0 9 GPIO_ACTIVE_HIGH>;
++		};
++	};
++
++	gpio-poweroff {
++		compatible = "gpio-poweroff";
++		gpios = <&gpio0 47 GPIO_ACTIVE_LOW>;
++	};
++
++	usb_phy0: phy0 {
++		compatible = "usb-nop-xceiv";
++		#phy-cells = <0>;
++		reset-gpios = <&gpio0 46 GPIO_ACTIVE_LOW>;
++	};
++
++	leds-mb {
++		compatible = "gpio-leds";
++
++		led_mb_trigger1 {
++			gpios = <&gpio1 0 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_mb_trigger2 {
++			gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_mb_trigger3 {
++			gpios = <&gpio1 2 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_mb_aux_g {
++			gpios = <&gpio1 3 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_mb_aux_r {
++			gpios = <&gpio1 4 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_mb_aux_b {
++			gpios = <&gpio1 5 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++
++	leds-nfc {
++		compatible = "gpio-leds";
++
++		led_nfc_rfq {
++			gpios = <&gpio2 0 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_tx_rx {
++			gpios = <&gpio2 1 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_mod {
++			gpios = <&gpio2 2 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_aux1_g {
++			gpios = <&gpio2 3 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_aux1_r {
++			gpios = <&gpio2 4 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_aux1_b {
++			gpios = <&gpio2 5 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_vdc {
++			gpios = <&gpio2 6 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_nfc_analog_in {
++			gpios = <&gpio2 7 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++	};
++
++	leds-scope1 {
++		compatible = "gpio-leds";
++
++		led_scope_channel1_sma_r {
++			gpios = <&gpio3 3 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		led_scope_channel1_sma_g {
++			gpios = <&gpio3 4 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		led_scope_channel1_sma_b {
++			gpios = <&gpio3 5 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_channel1_bnc_r {
++			gpios = <&gpio3 6 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		led_scope_channel1_bnc_g {
++			gpios = <&gpio3 7 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		led_scope_channel1_bnc_b {
++			gpios = <&gpio3 8 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_channel2_sma_r {
++			gpios = <&gpio3 9 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		led_scope_channel2_sma_g {
++			gpios = <&gpio3 10 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		led_scope_channel2_sma_b {
++			gpios = <&gpio3 11 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_channel2_bnc_r {
++			gpios = <&gpio3 12 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		led_scope_channel2_bnc_g {
++			gpios = <&gpio3 13 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		led_scope_channel2_bnc_b {
++			gpios = <&gpio3 14 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++	};
++
++	leds-scope2 {
++		compatible = "gpio-leds";
++
++		led_scope_trig_r {
++			gpios = <&gpio4 0 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		led_scope_trig_g {
++			gpios = <&gpio4 1 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		led_scope_trig_b {
++			gpios = <&gpio4 2 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_scope_status_r {
++			gpios = <&gpio4 13 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		led_scope_status_g {
++			gpios = <&gpio4 14 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++		led_scope_status_b {
++			gpios = <&gpio4 15 GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++
++};
++
++&cpu0 {
++	operating-points = <1000000 1000000>;
++};
++
++&sdhci0 {
++	status = "okay";
++};
++
++&uart0 {
++	status = "okay";
++};
++
++&uart1 {
++	status = "okay";
++};
++
++&i2c0 {
++	status = "okay";
++	clock-frequency = <400000>;
++
++	embedded-controller@1e {
++		status = "okay";
++		reg = <0x1e>;
++		compatible = "google,cros-ec-i2c";
++		interrupts = <0 IRQ_TYPE_EDGE_FALLING>;
++		interrupt-parent = <&gpio0>;
++		google,has-vbc-nvram;
++
++		wakeup-source;
++			thermal: thermal {
++					compatible = "google,cros-ec-thermal";
++			};
++
++		tun: i2c-tunnel {
++			compatible = "google,cros-ec-i2c-tunnel";
++			#address-cells = <1>;
++			#size-cells = <0>;
++			google,remote-bus = <0>;
++			clock-frequency = <400000>;
++
++			eeprom-mb@57 {
++				compatible = "at,24c256";
++				reg = <0x57>;
++
++				eth0_addr: eth-addr@24 {
++					reg = <0x30 0x6>;
++				};
++			};
++		};
++	};
++
++	i2c-switch@77 {
++		compatible = "nxp,pca9543";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x77>;
++
++		i2c-ext@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++		};
++
++		i2c-ext@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++
++		};
++	};
++};
++
++&i2c1 {
++	status = "okay";
++	clock-frequency = <400000>;
++
++	i2c-switch-mb@73 {
++		compatible = "nxp,pca9546";
++		#address-cells = <1>;
++		#size-cells = <0>;
++		reg = <0x73>;
++
++		i2c-mb@0 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <0>;
++
++			rtc0: rtc@68 {
++				compatible = "dallas,ds1374";
++				reg = <0x68>;
++				reset-on-timeout;
++				trickle-resistor-ohms = <250>;
++				trickle-diode-disable;
++				timeout-sec = <10>;
++			};
++
++			gpio1: gpio@77 {
++				compatible = "nxp,pca9539";
++				reg = <0x77>;
++				gpio-controller;
++				#gpio-cells = <2>;
++			};
++
++		};
++
++		i2c-daq@1 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <1>;
++
++			eeprom-daq@57 {
++				compatible = "at,24c256";
++				reg = <0x57>;
++			};
++
++			gpio3: gpio-daq@74 {
++				compatible = "nxp,pca9539";
++				reg = <0x75>;
++				gpio-controller;
++				#gpio-cells = <2>;
++			};
++
++			gpio4: gpio-daq@75 {
++				compatible = "nxp,pca9539";
++				reg = <0x77>;
++				gpio-controller;
++				#gpio-cells = <2>;
++			};
++		};
++
++		i2c-nfc@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
++
++			i2c-switch-nfc@71 {
++				compatible = "nxp,pca9546";
++				#address-cells = <1>;
++				#size-cells = <0>;
++				reg = <0x71>;
++
++				i2c-ext-nfc@0 {
++					#address-cells = <1>;
++					#size-cells = <0>;
++					reg = <0>;
++
++					eeprom-nfc@57 {
++						compatible = "at,24c256";
++						reg = <0x57>;
++					};
++				};
++
++				i2c-ext-nfc@1 {
++					#address-cells = <1>;
++					#size-cells = <0>;
++					reg = <1>;
++
++					gpio2: gpio-nfc@76 {
++						compatible = "nxp,pca9539";
++						reg = <0x76>;
++						gpio-controller;
++						#gpio-cells = <2>;
++					};
++				};
 +			};
 +		};
 +	};
