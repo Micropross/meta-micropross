@@ -1,17 +1,28 @@
 #!/bin/sh
 
-OVERLAY_LIST="txgrl-pl spi-nor interrupts pcie ni_cts3_spy"
+OVERLAY_LIST="spi-nor interrupts pcie ni_cts3_spy"
 OVERLAY_DIR=/lib/firmware
 
-##
-# Misc pre-overlay stuff
-##
+# GPIO Definition
+GPIO_SPI_OE_BUFFER=56
+GPIO_PROGRAM_FPGA=57
+GPIO_INIT_FPGA=58
+GPIO_DONE_FPGA=59
 
-# Start LEDs rail voltage
-gpioset 0 65=1
+# Get revision, default is B
+REV="B"
+for arg in `cat /proc/cmdline`
+do
+    if [[ $arg == "rev="* ]]; then
+        REV=${arg#*=}
+        echo "Revision found : $REV"
+    fi
+done
 
-# Set SPI NOR buffer direction to be able detect the SPI NOR
-gpioset 0 56=0
+if [[ $REV == "A" ]]; then
+    # Start LEDs rail voltage
+    gpioset 0 65=1
+fi
 
 # Check FPGA binary md5
 FPGA_PATTERN="/lib/firmware/fpga-mb_*.bin"
@@ -51,6 +62,31 @@ else
     rm $FPGA_SYMBOLIC > /dev/null
 fi
 
+# Load FPGA PL
+echo "Load txgrl-pl device tree overlay."
+mkdir -p /sys/kernel/config/device-tree/overlays/txgrl-pl
+cat $OVERLAY_DIR/txgrl-pl.dtbo > /sys/kernel/config/device-tree/overlays/txgrl-pl/dtbo
+
+if [[ $REV == "B" ]]; then
+    # Set SPI NOR buffer direction to be accessible by DAQ FPGA
+    gpioset 0 $GPIO_SPI_OE_BUFFER=1
+
+    # Start DAQ FPGA
+    gpioset 0 $GPIO_PROGRAM_FPGA=1
+    gpioset 0 $GPIO_PROGRAM_FPGA=0
+    gpioset 0 $GPIO_PROGRAM_FPGA=1
+
+    # Wait for done signal
+    for i in $(seq 1 10)
+    do
+        if [ `gpioget 0 $GPIO_DONE_FPGA` -eq 1 ]; then break; fi
+        sleep 0.5
+    done
+fi
+
+# Set SPI NOR buffer direction to be able detect the SPI NOR
+gpioset 0 $GPIO_SPI_OE_BUFFER=0
+
 ##
 # Load overlays
 ##
@@ -60,9 +96,6 @@ do
     mkdir -p /sys/kernel/config/device-tree/overlays/$overlay
     cat $OVERLAY_DIR/$overlay.dtbo > /sys/kernel/config/device-tree/overlays/$overlay/dtbo
 done
-
-# Wait for kernel to start hardware driver
-sleep 1
 
 # Insert spy driver
 modprobe ni_cts3_spy
