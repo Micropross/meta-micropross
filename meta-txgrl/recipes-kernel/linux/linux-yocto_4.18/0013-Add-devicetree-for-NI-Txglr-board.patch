@@ -471,7 +471,7 @@ index 000000000000..fc94e0597da9
 +};
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 new file mode 100644
-index 000000000000..54f26b9e3401
+index 000000000000..5ad7c4f56a2a
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 @@ -0,0 +1,458 @@
@@ -676,15 +676,15 @@ index 000000000000..54f26b9e3401
 +	leds-scope2 {
 +		compatible = "gpio-leds";
 +
-+		led_scope_trig_r {
++		led_scope_ext_r {
 +			gpios = <&gpio4 0 GPIO_ACTIVE_HIGH>;
 +			default-state = "off";
 +		};
-+		led_scope_trig_g {
++		led_scope_ext_g {
 +			gpios = <&gpio4 1 GPIO_ACTIVE_HIGH>;
 +			default-state = "off";
 +		};
-+		led_scope_trig_b {
++		led_scope_ext_b {
 +			gpios = <&gpio4 2 GPIO_ACTIVE_HIGH>;
 +			default-state = "off";
 +		};
