@@ -63,39 +63,41 @@ else
 fi
 
 # Load FPGA PL
-echo "Load txgrl-pl device tree overlay."
-mkdir -p /sys/kernel/config/device-tree/overlays/txgrl-pl
-cat $OVERLAY_DIR/txgrl-pl.dtbo > /sys/kernel/config/device-tree/overlays/txgrl-pl/dtbo
+if [ -e $FPGA_SYMBOLIC ]; then
+    echo "Load txgrl-pl device tree overlay."
+    mkdir -p /sys/kernel/config/device-tree/overlays/txgrl-pl
+    cat $OVERLAY_DIR/txgrl-pl.dtbo > /sys/kernel/config/device-tree/overlays/txgrl-pl/dtbo
 
-if [[ $REV == "B" ]]; then
-    # Set SPI NOR buffer direction to be accessible by DAQ FPGA
-    gpioset 0 $GPIO_SPI_OE_BUFFER=1
+    if [[ $REV == "B" ]]; then
+        # Set SPI NOR buffer direction to be accessible by DAQ FPGA
+        gpioset 0 $GPIO_SPI_OE_BUFFER=1
 
-    # Start DAQ FPGA
-    gpioset 0 $GPIO_PROGRAM_FPGA=1
-    gpioset 0 $GPIO_PROGRAM_FPGA=0
-    gpioset 0 $GPIO_PROGRAM_FPGA=1
+        # Start DAQ FPGA
+        gpioset 0 $GPIO_PROGRAM_FPGA=1
+        gpioset 0 $GPIO_PROGRAM_FPGA=0
+        gpioset 0 $GPIO_PROGRAM_FPGA=1
 
-    # Wait for done signal
-    for i in $(seq 1 10)
+        # Wait for done signal
+        for i in $(seq 1 10)
+        do
+            if [ `gpioget 0 $GPIO_DONE_FPGA` -eq 1 ]; then break; fi
+            sleep 0.5
+        done
+    fi
+
+    # Set SPI NOR buffer direction to be able detect the SPI NOR
+    gpioset 0 $GPIO_SPI_OE_BUFFER=0
+
+    ##
+    # Load overlays
+    ##
+    for overlay in $OVERLAY_LIST
     do
-        if [ `gpioget 0 $GPIO_DONE_FPGA` -eq 1 ]; then break; fi
-        sleep 0.5
+        echo "Load $overlay device tree overlay."
+        mkdir -p /sys/kernel/config/device-tree/overlays/$overlay
+        cat $OVERLAY_DIR/$overlay.dtbo > /sys/kernel/config/device-tree/overlays/$overlay/dtbo
     done
 fi
-
-# Set SPI NOR buffer direction to be able detect the SPI NOR
-gpioset 0 $GPIO_SPI_OE_BUFFER=0
-
-##
-# Load overlays
-##
-for overlay in $OVERLAY_LIST
-do
-    echo "Load $overlay device tree overlay."
-    mkdir -p /sys/kernel/config/device-tree/overlays/$overlay
-    cat $OVERLAY_DIR/$overlay.dtbo > /sys/kernel/config/device-tree/overlays/$overlay/dtbo
-done
 
 # Insert spy driver
 modprobe ni_cts3_spy
