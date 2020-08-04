@@ -5,7 +5,8 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 
-SRC_URI = " file://ec-txgrl-rev1.RW.bin \
+SRC_URI = " file://ec-txgrl-revA.RW.bin \
+			file://ec-txgrl-revB.RW.bin \
 			file://ectool \
 			file://init_cts3.sh \
 			file://txgrl-pl.dts \
@@ -15,7 +16,8 @@ SRC_URI = " file://ec-txgrl-rev1.RW.bin \
 			file://ni_cts3_spy.dts \
           "
 
-FILES_${PN} = "	/lib/firmware/ni/ec-txgrl-rev1.RW.bin \
+FILES_${PN} = "	/lib/firmware/ni/ec-txgrl-revA.RW.bin \
+				/lib/firmware/ni/ec-txgrl-revB.RW.bin \
 				/usr/sbin/ectool \
 			   	/usr/bin/init_cts3.sh \
 			   	/lib/firmware/txgrl-pl.dtbo \
@@ -39,7 +41,8 @@ do_compile() {
 
 do_install() {
 	install -d ${D}/lib/firmware/ni/
-    install -D -m 0644 ${WORKDIR}/ec-txgrl-rev1.RW.bin ${D}/lib/firmware/ni/ec-txgrl-rev1.RW.bin
+    install -D -m 0400 ${WORKDIR}/ec-txgrl-revA.RW.bin ${D}/lib/firmware/ni/ec-txgrl-revA.RW.bin
+    install -D -m 0400 ${WORKDIR}/ec-txgrl-revB.RW.bin ${D}/lib/firmware/ni/ec-txgrl-revB.RW.bin
 
 	install -d ${D}/usr/sbin/
 	install -D -m 0700 ${WORKDIR}/ectool ${D}/usr/sbin/ectool
