@@ -1,6 +1,6 @@
-From fc366b5c4720838c4b772aabf3a8b204bf78cc05 Mon Sep 17 00:00:00 2001
+From a97208ea989ca61671aff68251cb65609ee95723 Mon Sep 17 00:00:00 2001
 From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
-Date: Wed, 5 Aug 2020 16:02:26 +0200
+Date: Wed, 5 Aug 2020 17:33:24 +0200
 Subject: [PATCH 2/2] Add support of NI Txgrl board.
 
 ---
@@ -17,8 +17,8 @@ Subject: [PATCH 2/2] Add support of NI Txgrl board.
  board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.c | 12945 +++++++++++++++++++
  board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.h |   137 +
  configs/ni_txgrl_defconfig                 |    70 +
- include/configs/ni_txgrl.h                 |    47 +
- 14 files changed, 14654 insertions(+)
+ include/configs/ni_txgrl.h                 |    38 +
+ 14 files changed, 14645 insertions(+)
  create mode 100644 arch/arm/dts/zynq-ni-txgrl-uboot.dtsi
  create mode 100644 arch/arm/dts/zynq-ni-txgrl.dts
  create mode 100644 board/ni/zynq/MAINTAINERS
@@ -1333,7 +1333,7 @@ index 0000000000..a8bee0cd0e
 +//End of file
 diff --git a/board/ni/zynq/txgrl-eeprom.c b/board/ni/zynq/txgrl-eeprom.c
 new file mode 100644
-index 0000000000..329912549e
+index 0000000000..eb38663fce
 --- /dev/null
 +++ b/board/ni/zynq/txgrl-eeprom.c
 @@ -0,0 +1,164 @@
@@ -1400,7 +1400,7 @@ index 0000000000..329912549e
 +	struct udevice *i2c_tun, *eeprom_chip;
 +	struct txgrl_mboard_eeprom eeprom;
 +	char base_fdt[128];
-+	char ec_compat_buf[8];
++	char board_rev_buf[8];
 +	int err, i;
 +	u32 crc;
 +	u16 rev;
@@ -1447,15 +1447,15 @@ index 0000000000..329912549e
 +	if (ntohl(eeprom.version) == 1) {
 +		printf("Found version 1 EEPROM\n");
 +		snprintf(base_fdt, 128, "%s-rev%c", txgrl_get_mboard_dtb(ntohs(eeprom.pid)), 'a' + rev - 1);
-+		snprintf(ec_compat_buf, 8, "%c", 'A' + rev - 1);
++		snprintf(board_rev_buf, 8, "%c", 'A' + rev - 1);
 +	} else {
 +		printf("Found version %u EEPROM, unsupported !\n", ntohl(eeprom.version));
 +		// Set to revision B
 +		snprintf(base_fdt, 128, "txgrl-revb");
-+		snprintf(ec_compat_buf, 8, "B");
++		snprintf(board_rev_buf, 8, "B");
 +	}
 +	env_set("mboard", base_fdt);
-+	env_set("ec_compat", ec_compat_buf);
++	env_set("board_rev", board_rev_buf);
 +
 +	printf("NI Micropross Project %s Rev %c\n",
 +			txgrl_get_mboard_name(ntohs(eeprom.pid)),
@@ -14723,10 +14723,10 @@ index 0000000000..3994327848
 +CONFIG_EXT4_WRITE=y
 diff --git a/include/configs/ni_txgrl.h b/include/configs/ni_txgrl.h
 new file mode 100644
-index 0000000000..11cbaeb4d4
+index 0000000000..0cc040c0a7
 --- /dev/null
 +++ b/include/configs/ni_txgrl.h
-@@ -0,0 +1,47 @@
+@@ -0,0 +1,38 @@
 +/* SPDX-License-Identifier: GPL-2.0
 + *
 + * (C) Copyright 2019 National Instruments Corp
@@ -14749,25 +14749,16 @@ index 0000000000..11cbaeb4d4
 +#undef CONFIG_EXTRA_ENV_SETTINGS
 +#define CONFIG_EXTRA_ENV_SETTINGS	\
 +	"fit_image=/boot/fitImage\0"		\
-+	"ec_compat=1\0"		\
++	"board_rev=B\0"		\
 +	"mboard=txgrl-revb\0"	\
-+	"ec_disable_swsync=0\0"		\
-+	"ec_image=lib/firmware/ni/ec-txgrl.RW.bin\0"	\
-+	"expand_ec_image=setenv ec_image lib/firmware/ni/ec-txgrl-rev${ec_compat}.RW.bin\0" \
 +	"bootargs=root=/dev/mmcblk0p5 rw rootwait uio_pdrv_genirq.of_id=generic-uio boot_vers=1.0 rev=B\0" \
-+	"expand_bootargs=setenv bootargs root=/dev/mmcblk0p${partindex} rw rootwait uio_pdrv_genirq.of_id=generic-uio boot_vers=1.0 rev=${ec_compat}\0" \
++	"expand_bootargs=setenv bootargs root=/dev/mmcblk0p${partindex} rw rootwait uio_pdrv_genirq.of_id=generic-uio boot_vers=1.0 rev=${board_rev}\0" \
 +	"partindex=5\0" \
 +	"load_addr=0x2000000\0"		\
 +	"fit_size=0x800000\0"           \
 +	"fdt_high=0x20000000\0"         \
 +	"initrd_high=0x20000000\0"      \
-+	"sdboot=if test ${ec_disable_swsync} = 0; then "\
-+			"echo Copying MCU FW from SD to RAM... && " \
-+			"run expand_ec_image; " \
-+			"load mmc 0:${partindex} ${load_addr} ${ec_image} && " \
-+			"crosec swsync ${load_addr} ${filesize}; fi;" \
-+		"echo Copying FIT from SD to RAM... && " \
-+		"run expand_bootargs; " \
++	"sdboot=run expand_bootargs; " \
 +		"load mmc 0:${partindex} ${load_addr} ${fit_image} && " \
 +		"bootm ${load_addr}#conf@zynq-ni-${mboard}.dtb\0" \
 +		DFU_ALT_INFO
