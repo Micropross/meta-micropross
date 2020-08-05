@@ -13,10 +13,10 @@ index 37a3de760d40..e5f8edde2395 100644
  	zynq-zc706.dtb \
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts b/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
 new file mode 100644
-index 000000000000..fc94e0597da9
+index 000000000000..816c134640dc
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
-@@ -0,0 +1,452 @@
+@@ -0,0 +1,465 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
 + * NI Micropross Project Txgrl
@@ -44,6 +44,13 @@ index 000000000000..fc94e0597da9
 +		i2c0 = &i2c0;
 +		i2c1 = &i2c1;
 +		i2c2 = &tun;
++		i2c3 = &i2c_aux2;
++		i2c4 = &i2c_aux1;
++		i2c5 = &i2c_daq0;
++		i2c6 = &i2c_daq1;
++		i2c7 = &i2c_daq2;
++		i2c8 = &i2c_nfc0;
++		i2c9 = &i2c_nfc1;
 +	};
 +
 +	memory {
@@ -302,13 +309,13 @@ index 000000000000..fc94e0597da9
 +		#size-cells = <0>;
 +		reg = <0x74>;
 +
-+		i2c-ext@0 {
++		i2c_aux2: i2c-ext@0 {
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <0>;
 +		};
 +
-+		i2c-ext@1 {
++		i2c_aux1: i2c-ext@1 {
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <1>;
@@ -343,7 +350,7 @@ index 000000000000..fc94e0597da9
 +		#size-cells = <0>;
 +		reg = <0x71>;
 +
-+		i2c-nfc@0 {
++		i2c_nfc0: i2c-nfc@0 {
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <0>;
@@ -359,7 +366,7 @@ index 000000000000..fc94e0597da9
 +			};
 +		};
 +
-+		i2c-nfc@1 {
++		i2c_nfc1: i2c-nfc@1 {
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <1>;
@@ -379,7 +386,7 @@ index 000000000000..fc94e0597da9
 +		#size-cells = <0>;
 +		reg = <0x74>;
 +
-+		i2c-scope@0 {
++		i2c_daq0: i2c-scope@0 {
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <0>;
@@ -395,7 +402,7 @@ index 000000000000..fc94e0597da9
 +			};
 +		};
 +
-+		i2c-scope@1 {
++		i2c_daq1: i2c-scope@1 {
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <1>;
@@ -406,6 +413,12 @@ index 000000000000..fc94e0597da9
 +				gpio-controller;
 +				#gpio-cells = <2>;
 +			};
++		};
++
++		i2c_daq2: i2c-scope@2 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <2>;
 +		};
 +	};
 +};
@@ -471,10 +484,10 @@ index 000000000000..fc94e0597da9
 +};
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 new file mode 100644
-index 000000000000..5ad7c4f56a2a
+index 000000000000..3d2e66f4549a
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
-@@ -0,0 +1,458 @@
+@@ -0,0 +1,465 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
 + * NI Micropross Project Txgrl
@@ -502,6 +515,13 @@ index 000000000000..5ad7c4f56a2a
 +		i2c0 = &i2c0;
 +		i2c1 = &i2c1;
 +		i2c2 = &tun;
++		i2c3 = &i2c_aux2;
++		i2c4 = &i2c_aux1;
++		i2c5 = &i2c_mb;
++		i2c6 = &i2c_daq;
++		i2c7 = &i2c_nfc;
++		i2c8 = &i2c_nfc0;
++		i2c9 = &i2c_nfc1;
 +	};
 +
 +	memory {
@@ -762,13 +782,13 @@ index 000000000000..5ad7c4f56a2a
 +		#size-cells = <0>;
 +		reg = <0x77>;
 +
-+		i2c-ext@0 {
++		i2c_aux2: i2c-ext@0 {
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <0>;
 +		};
 +
-+		i2c-ext@1 {
++		i2c_aux1: i2c-ext@1 {
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <1>;
@@ -787,7 +807,7 @@ index 000000000000..5ad7c4f56a2a
 +		#size-cells = <0>;
 +		reg = <0x73>;
 +
-+		i2c-mb@0 {
++		i2c_mb: i2c-mb@0 {
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <0>;
@@ -810,7 +830,7 @@ index 000000000000..5ad7c4f56a2a
 +
 +		};
 +
-+		i2c-daq@1 {
++		i2c_daq: i2c-daq@1 {
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <1>;
@@ -835,7 +855,7 @@ index 000000000000..5ad7c4f56a2a
 +			};
 +		};
 +
-+		i2c-nfc@2 {
++		i2c_nfc: i2c-nfc@2 {
 +			#address-cells = <1>;
 +			#size-cells = <0>;
 +			reg = <2>;
@@ -846,7 +866,7 @@ index 000000000000..5ad7c4f56a2a
 +				#size-cells = <0>;
 +				reg = <0x71>;
 +
-+				i2c-ext-nfc@0 {
++				i2c_nfc0: i2c-ext-nfc@0 {
 +					#address-cells = <1>;
 +					#size-cells = <0>;
 +					reg = <0>;
@@ -857,7 +877,7 @@ index 000000000000..5ad7c4f56a2a
 +					};
 +				};
 +
-+				i2c-ext-nfc@1 {
++				i2c_nfc1: i2c-ext-nfc@1 {
 +					#address-cells = <1>;
 +					#size-cells = <0>;
 +					reg = <1>;
