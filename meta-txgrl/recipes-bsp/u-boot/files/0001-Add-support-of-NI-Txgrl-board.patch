@@ -1,6 +1,6 @@
-From b13ac2b3fa924ed9f5ab39d7f031d27278518ab8 Mon Sep 17 00:00:00 2001
+From fc366b5c4720838c4b772aabf3a8b204bf78cc05 Mon Sep 17 00:00:00 2001
 From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
-Date: Tue, 4 Aug 2020 11:16:42 +0200
+Date: Wed, 5 Aug 2020 16:02:26 +0200
 Subject: [PATCH 2/2] Add support of NI Txgrl board.
 
 ---
@@ -12,13 +12,13 @@ Subject: [PATCH 2/2] Add support of NI Txgrl board.
  board/ni/zynq/si5338.c                     |   296 +
  board/ni/zynq/si5338.h                     |    13 +
  board/ni/zynq/si5338_reg.h                 |   437 +
- board/ni/zynq/txgrl-eeprom.c               |   160 +
+ board/ni/zynq/txgrl-eeprom.c               |   164 +
  board/ni/zynq/txgrl-eeprom.h               |    44 +
  board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.c | 12945 +++++++++++++++++++
  board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.h |   137 +
  configs/ni_txgrl_defconfig                 |    70 +
  include/configs/ni_txgrl.h                 |    47 +
- 14 files changed, 14650 insertions(+)
+ 14 files changed, 14654 insertions(+)
  create mode 100644 arch/arm/dts/zynq-ni-txgrl-uboot.dtsi
  create mode 100644 arch/arm/dts/zynq-ni-txgrl.dts
  create mode 100644 board/ni/zynq/MAINTAINERS
@@ -1333,10 +1333,10 @@ index 0000000000..a8bee0cd0e
 +//End of file
 diff --git a/board/ni/zynq/txgrl-eeprom.c b/board/ni/zynq/txgrl-eeprom.c
 new file mode 100644
-index 0000000000..34d7d1357e
+index 0000000000..329912549e
 --- /dev/null
 +++ b/board/ni/zynq/txgrl-eeprom.c
-@@ -0,0 +1,160 @@
+@@ -0,0 +1,164 @@
 +/*
 + * (C) Copyright 2017 National Instruments Corp
 + *
@@ -1403,6 +1403,7 @@ index 0000000000..34d7d1357e
 +	char ec_compat_buf[8];
 +	int err, i;
 +	u32 crc;
++	u16 rev;
 +
 +	err = uclass_get_device_by_seq(UCLASS_I2C, 2, &i2c_tun);
 +	if (err < 0) {
@@ -1430,9 +1431,9 @@ index 0000000000..34d7d1357e
 +	}
 +
 +	crc = crc32(0, (const u8*)&eeprom, sizeof(eeprom) - 4);
-+	if (ntohl(crc) != eeprom.crc) {
++	if (crc != eeprom.crc) {
 +		printf("%s: CRC for eeprom doesn't match! %08x vs %08x\n",
-+		       __func__, ntohl(crc), eeprom.crc);
++		       __func__, crc, eeprom.crc);
 +		return -EINVAL;
 +	}
 +
@@ -1440,10 +1441,13 @@ index 0000000000..34d7d1357e
 +	if (err)
 +		return err;
 +
++	rev = ntohs(eeprom.rev);
++	if (rev == 0) rev = 1; // 0 is also rev A
++
 +	if (ntohl(eeprom.version) == 1) {
 +		printf("Found version 1 EEPROM\n");
-+		snprintf(base_fdt, 128, "%s-rev%c", txgrl_get_mboard_dtb(ntohs(eeprom.pid)), 'a' + ntohs(eeprom.rev) - 1);
-+		snprintf(ec_compat_buf, 8, "%c", 'A' + ntohs(eeprom.rev) - 1);
++		snprintf(base_fdt, 128, "%s-rev%c", txgrl_get_mboard_dtb(ntohs(eeprom.pid)), 'a' + rev - 1);
++		snprintf(ec_compat_buf, 8, "%c", 'A' + rev - 1);
 +	} else {
 +		printf("Found version %u EEPROM, unsupported !\n", ntohl(eeprom.version));
 +		// Set to revision B
@@ -1455,8 +1459,8 @@ index 0000000000..34d7d1357e
 +
 +	printf("NI Micropross Project %s Rev %c\n",
 +			txgrl_get_mboard_name(ntohs(eeprom.pid)),
-+			'A' + ntohs(eeprom.rev) - 1);
-+	return ntohs(eeprom.rev);
++			'A' + rev - 1);
++	return rev;
 +}
 +
 +int txgrl_read_ethaddr(unsigned char *ethaddr, int which)
