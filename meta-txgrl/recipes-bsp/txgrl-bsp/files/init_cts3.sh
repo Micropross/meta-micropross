@@ -22,16 +22,18 @@ done
 if [[ $REV == "A" ]]; then
     # Start LEDs rail voltage
     gpioset 0 65=1
+    FPGA_PATTERN="/lib/firmware/fpga-mb_a_*.bin"
+else
+    FPGA_PATTERN="/lib/firmware/fpga-mb_b_*.bin"
 fi
 
 # Check FPGA binary md5
-FPGA_PATTERN="/lib/firmware/fpga-mb_*.bin"
 FPGA_SYMBOLIC="/lib/firmware/top.bin"
 FPGA_COUNT=`ls -l $FPGA_PATTERN | wc -l`
 if [ "$FPGA_COUNT" -eq "1" ]; then
     FPGA_BIN=`ls $FPGA_PATTERN`
     MD5_FILE=`md5sum $FPGA_PATTERN | cut -c -32`
-    MD5_NAME=`ls $FPGA_PATTERN | cut -d "_" -f 3 | cut -c -32`
+    MD5_NAME=`ls $FPGA_PATTERN | cut -d "_" -f 4 | cut -c -32`
 
     if [ "$MD5_FILE" = "$MD5_NAME" ]; then
         # Symbolic file exist and point to the correct file
