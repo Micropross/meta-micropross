@@ -13,10 +13,10 @@ index 37a3de760d40..e5f8edde2395 100644
  	zynq-zc706.dtb \
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts b/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
 new file mode 100644
-index 000000000000..816c134640dc
+index 000000000000..a4e0219e487c
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
-@@ -0,0 +1,465 @@
+@@ -0,0 +1,444 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
 + * NI Micropross Project Txgrl
@@ -218,31 +218,10 @@ index 000000000000..816c134640dc
 +			default-state = "off";
 +		};
 +
-+		led_scope_sync {
++		led_scope_ext {
 +			gpios = <&gpio3 7 GPIO_ACTIVE_HIGH>;
 +			default-state = "off";
 +		};
-+
-+		led_scope_channel3_sma {
-+			gpios = <&gpio3 8 GPIO_ACTIVE_HIGH>;
-+			default-state = "off";
-+		};
-+
-+		led_scope_channel3_bnc {
-+			gpios = <&gpio3 9 GPIO_ACTIVE_HIGH>;
-+			default-state = "off";
-+		};
-+
-+		led_scope_channel4_sma {
-+			gpios = <&gpio3 10 GPIO_ACTIVE_HIGH>;
-+			default-state = "off";
-+		};
-+
-+		led_scope_channel4_bnc {
-+			gpios = <&gpio3 11 GPIO_ACTIVE_HIGH>;
-+			default-state = "off";
-+		};
-+
 +	};
 +
 +};
