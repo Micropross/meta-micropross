@@ -463,7 +463,7 @@ index 000000000000..a4e0219e487c
 +};
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 new file mode 100644
-index 000000000000..3d2e66f4549a
+index 000000000000..1f296ac7e63f
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 @@ -0,0 +1,465 @@
@@ -527,7 +527,7 @@ index 000000000000..3d2e66f4549a
 +
 +	gpio-poweroff {
 +		compatible = "gpio-poweroff";
-+		gpios = <&gpio0 47 GPIO_ACTIVE_LOW>;
++		gpios = <&gpio0 47 GPIO_ACTIVE_HIGH>;
 +	};
 +
 +	usb_phy0: phy0 {

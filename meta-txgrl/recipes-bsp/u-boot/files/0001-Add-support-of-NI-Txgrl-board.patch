@@ -1,4 +1,4 @@
-From a97208ea989ca61671aff68251cb65609ee95723 Mon Sep 17 00:00:00 2001
+From b88d12a3d2579e3c5fab28ce02607785262fcf80 Mon Sep 17 00:00:00 2001
 From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
 Date: Wed, 5 Aug 2020 17:33:24 +0200
 Subject: [PATCH 2/2] Add support of NI Txgrl board.
@@ -8,7 +8,7 @@ Subject: [PATCH 2/2] Add support of NI Txgrl board.
  arch/arm/dts/zynq-ni-txgrl.dts             |   209 +
  board/ni/zynq/MAINTAINERS                  |     6 +
  board/ni/zynq/Makefile                     |    10 +
- board/ni/zynq/board.c                      |   235 +
+ board/ni/zynq/board.c                      |   239 +
  board/ni/zynq/si5338.c                     |   296 +
  board/ni/zynq/si5338.h                     |    13 +
  board/ni/zynq/si5338_reg.h                 |   437 +
@@ -18,7 +18,7 @@ Subject: [PATCH 2/2] Add support of NI Txgrl board.
  board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.h |   137 +
  configs/ni_txgrl_defconfig                 |    70 +
  include/configs/ni_txgrl.h                 |    38 +
- 14 files changed, 14645 insertions(+)
+ 14 files changed, 14649 insertions(+)
  create mode 100644 arch/arm/dts/zynq-ni-txgrl-uboot.dtsi
  create mode 100644 arch/arm/dts/zynq-ni-txgrl.dts
  create mode 100644 board/ni/zynq/MAINTAINERS
@@ -36,7 +36,7 @@ Subject: [PATCH 2/2] Add support of NI Txgrl board.
 
 diff --git a/arch/arm/dts/zynq-ni-txgrl-uboot.dtsi b/arch/arm/dts/zynq-ni-txgrl-uboot.dtsi
 new file mode 100644
-index 0000000000..31173c3b33
+index 0000000000..8d8f9ad88f
 --- /dev/null
 +++ b/arch/arm/dts/zynq-ni-txgrl-uboot.dtsi
 @@ -0,0 +1,41 @@
@@ -54,7 +54,7 @@ index 0000000000..31173c3b33
 +	u-boot,dm-pre-reloc;
 +
 +	sys_pwron_revb {
-+		gpios = <&gpio0 47 GPIO_ACTIVE_HIGH>;
++		gpios = <&gpio0 47 GPIO_ACTIVE_LOW>;
 +	};
 +
 +	sys_pwron_reva {
@@ -327,10 +327,10 @@ index 0000000000..981a96ea27
 \ No newline at end of file
 diff --git a/board/ni/zynq/board.c b/board/ni/zynq/board.c
 new file mode 100644
-index 0000000000..04b30f5183
+index 0000000000..6fbf0a91b2
 --- /dev/null
 +++ b/board/ni/zynq/board.c
-@@ -0,0 +1,235 @@
+@@ -0,0 +1,239 @@
 +/*
 + * (C) Copyright 2012 Michal Simek <monstr@monstr.eu>
 + *
@@ -388,6 +388,8 @@ index 0000000000..04b30f5183
 +			printf("Failed to request 'sys_pwron_reva' gpio.\n");
 +			return ret;
 +		}
++		// output, active high
++		dm_gpio_set_dir_flags(&sys_pwron, GPIOD_IS_OUT);
 +
 +		node = fdt_subnode_offset(blob, dev_of_offset(zynq_gpio), "gpio_spi_oe_buffer");
 +
@@ -412,15 +414,17 @@ index 0000000000..04b30f5183
 +			printf("Failed to request 'sys_pwron_revb' gpio.\n");
 +			return ret;
 +		}
++		// output, active low
++		dm_gpio_set_dir_flags(&sys_pwron, GPIOD_IS_OUT | GPIOD_ACTIVE_LOW);
 +	}
 +
 +	if (type == BOARD_POWER_TYPE_OFF)
 +	{
-+		dm_gpio_set_dir_flags(&sys_pwron, GPIOD_IS_OUT);
++		dm_gpio_set_value(&sys_pwron, 0);
 +	}
 +	else
 +	{
-+		dm_gpio_set_dir_flags(&sys_pwron, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
++		dm_gpio_set_value(&sys_pwron, 1);
 +	}
 +
 +	return 0;
