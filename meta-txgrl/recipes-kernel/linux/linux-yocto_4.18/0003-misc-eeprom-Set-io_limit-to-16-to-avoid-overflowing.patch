@@ -1,7 +1,7 @@
-From f4c920f5959e102092fb7119e15b798b69b85e3e Mon Sep 17 00:00:00 2001
+From 2e486dd182efa5bd61bbf5b5ab59cb89a71e4cce Mon Sep 17 00:00:00 2001
 From: Moritz Fischer <moritz@ettus.com>
 Date: Wed, 25 Apr 2018 20:06:55 -0700
-Subject: [PATCH 04/17] misc: eeprom: Set io_limit to 16 to avoid overflowing
+Subject: [PATCH 3/5] misc: eeprom: Set io_limit to 16 to avoid overflowing
 
 Set the io_limit to 16 to avoid overflowing the i2c
 passthrough through the MCU. This should properly be
@@ -14,7 +14,7 @@ Signed-off-by: Moritz Fischer <moritz@ettus.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 7e50e1d6f58c..8b9f2cde39c4 100644
+index f5cc517d1131..c768e3e0cad8 100644
 --- a/drivers/misc/eeprom/at24.c
 +++ b/drivers/misc/eeprom/at24.c
 @@ -94,7 +94,7 @@ struct at24_data {
@@ -27,5 +27,5 @@ index 7e50e1d6f58c..8b9f2cde39c4 100644
  MODULE_PARM_DESC(at24_io_limit, "Maximum bytes per I/O (default 128)");
  
 -- 
-2.20.1
+2.17.1
 

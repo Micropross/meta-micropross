@@ -1,3 +1,16 @@
+From d7609fd086346908968ca264f7413979161eb7f3 Mon Sep 17 00:00:00 2001
+From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
+Date: Thu, 13 Aug 2020 16:38:30 +0200
+Subject: [PATCH 5/5] ARM: dt: Add devicetree for NI Project Txgrl board
+
+---
+ arch/arm/boot/dts/Makefile               |   2 +
+ arch/arm/boot/dts/zynq-ni-txgrl-reva.dts | 444 ++++++++++++++++++++++
+ arch/arm/boot/dts/zynq-ni-txgrl-revb.dts | 465 +++++++++++++++++++++++
+ 3 files changed, 911 insertions(+)
+ create mode 100644 arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
+ create mode 100644 arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
+
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
 index 37a3de760d40..e5f8edde2395 100644
 --- a/arch/arm/boot/dts/Makefile
@@ -463,7 +476,7 @@ index 000000000000..a4e0219e487c
 +};
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 new file mode 100644
-index 000000000000..1f296ac7e63f
+index 000000000000..4fb55277b196
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 @@ -0,0 +1,465 @@
@@ -932,3 +945,6 @@ index 000000000000..1f296ac7e63f
 +		reg = <0xfffc0000 0x10000>;
 +	};
 +};
+-- 
+2.17.1
+

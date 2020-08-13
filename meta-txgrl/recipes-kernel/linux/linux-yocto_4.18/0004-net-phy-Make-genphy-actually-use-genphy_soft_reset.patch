@@ -1,7 +1,7 @@
-From d0152a6c751a3479da0ed5558e45404adff21be4 Mon Sep 17 00:00:00 2001
+From 792af5940d1a4860c3c8ea0dfa3a6cb2927d4063 Mon Sep 17 00:00:00 2001
 From: Moritz Fischer <moritz.fischer@ettus.com>
 Date: Tue, 21 Aug 2018 17:55:08 +0000
-Subject: [PATCH 08/17] net: phy: Make genphy actually use genphy_soft_reset
+Subject: [PATCH 4/5] net: phy: Make genphy actually use genphy_soft_reset
 
 Make genphy actually use genphy_soft_reset to clear the
 BMCR_PDOWN flag as required by PHY to come out of power
@@ -27,5 +27,5 @@ index b9f5f40a7ac1..c2665a5a2d13 100644
  	.features	= PHY_GBIT_FEATURES | SUPPORTED_MII |
  			  SUPPORTED_AUI | SUPPORTED_FIBRE |
 -- 
-2.20.1
+2.17.1
 
