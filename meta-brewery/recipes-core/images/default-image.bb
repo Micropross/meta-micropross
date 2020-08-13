@@ -61,3 +61,9 @@ inherit core-image image-buildinfo
 TOOLCHAIN_HOST_TASK += "nativesdk-python3-setuptools \
                        "
 TOOLCHAIN_TARGET_TASK_append = " kernel-dev kernel-devsrc libftdi-staticdev libusb1-staticdev"
+
+
+inherit extrausers
+EXTRA_USERS_PARAMS = " \
+                        useradd --uid 1000 default; \
+                    "
