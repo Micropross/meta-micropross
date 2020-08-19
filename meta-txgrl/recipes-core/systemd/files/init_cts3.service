@@ -1,9 +1,0 @@
-[Unit]
-Description=Init CTS3 board.
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/init_cts3.sh
-
-[Install]
-WantedBy=multi-user.target
