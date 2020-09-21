@@ -1,0 +1,19 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    fragment@0 {
+
+        target = <&amba>;
+        __overlay__ {
+
+            axi-usb2-device@84000000 {
+                compatible = "xlnx,usb2-device-4.00.a";
+                interrupt-parent = <&intc>;
+                interrupts = <0 57 1>;
+                reg = <0x84000000 0x10000>;
+                xlnx,has-builtin-dma;
+            };
+        };
+    };
+};
