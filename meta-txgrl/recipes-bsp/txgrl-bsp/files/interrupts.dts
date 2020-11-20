@@ -43,13 +43,13 @@
                 interrupts = <0 34 4>;
             };
 
-            /*uio_fault_12v@6 {
+            uio_fault_12v@6 {
                 compatible = "generic-uio";
                 interrupt-parent = <&intc>;
                 interrupts = <0 35 4>;
-            };*/
+            };
 
-            uio_hacbb@7 {
+            uio_fault_ext_12v@7 {
                 compatible = "generic-uio";
                 interrupt-parent = <&intc>;
                 interrupts = <0 52 4>;
@@ -60,12 +60,6 @@
                 interrupt-parent = <&intc>;
                 interrupts = <0 53 4>;
             };
-
-            /*uio_cdma@9 {
-                compatible = "generic-uio";
-                interrupt-parent = <&intc>;
-                interrupts = <0 54 4>;
-            };*/
 
             uio_hdmi@10 {
                 compatible = "generic-uio";
