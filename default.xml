@@ -4,7 +4,7 @@
 
 	<remote fetch="git://git.openembedded.org/" name="oe"/>
 	<remote fetch="https://github.com/Freescale" name="freescale"/>
-	<remote fetch="ssh://git@github.com" name="micropross"/>
+	<remote fetch="git://github.com/Micropross" name="micropross"/>
 
 	<project remote="freescale"  name="meta-freescale" path="sources/meta-freescale"/>
 
@@ -12,7 +12,7 @@
 	<project remote="oe" name="bitbake" path="sources/openembedded-core/bitbake" revision="1.40" />
 	<project remote="oe" name="meta-openembedded" path="sources/meta-openembedded"/>
 
-	<project remote="micropross" name="Micropross/meta-micropross" path="sources/meta-micropross">
+	<project remote="micropross" name="meta-micropross" path="sources/meta-micropross">
 		<copyfile dest="setup-environment" src="buildconf/setup-environment"/>
 	</project>
 </manifest>
