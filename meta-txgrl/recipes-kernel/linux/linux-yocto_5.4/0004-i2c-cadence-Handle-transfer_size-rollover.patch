@@ -1,0 +1,69 @@
+From 6d73d4e0c0bc253a3422d9144cc13a1f459b6c5e Mon Sep 17 00:00:00 2001
+From: Alex Williams <alex.williams@ni.com>
+Date: Thu, 31 Jan 2019 13:39:57 -0800
+Subject: [PATCH 4/6] i2c: cadence: Handle transfer_size rollover
+
+Under certain conditions, Cadence's I2C controller's transfer_size
+register will roll over and generate invalid read transactions. Before
+this change, the ISR relied solely on the RXDV bit to determine when to
+write more data to the user's buffer. The invalid read data would cause
+overruns, smashing stacks and worse.
+
+This change stops the buffer writes to the requested boundary and
+reports the error. The controller will be reset so normal transactions
+may resume.
+
+Signed-off-by: Alex Williams <alex.williams@ni.com>
+Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@xilinx.com>
+Reviewed-by: Michal Simek <michal.simek@xilinx.com> # in a seperate mail
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/i2c/busses/i2c-cadence.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index a51d3b795770..5e6977e5a820 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -208,6 +208,7 @@ static irqreturn_t cdns_i2c_isr(int irq, void *ptr)
+ 
+ 	isr_status = cdns_i2c_readreg(CDNS_I2C_ISR_OFFSET);
+ 	cdns_i2c_writereg(isr_status, CDNS_I2C_ISR_OFFSET);
++	id->err_status = 0;
+ 
+ 	/* Handling nack and arbitration lost interrupt */
+ 	if (isr_status & (CDNS_I2C_IXR_NACK | CDNS_I2C_IXR_ARB_LOST)) {
+@@ -241,10 +242,17 @@ static irqreturn_t cdns_i2c_isr(int irq, void *ptr)
+ 			    !id->bus_hold_flag)
+ 				cdns_i2c_clear_bus_hold(id);
+ 
+-			*(id->p_recv_buf)++ =
+-				cdns_i2c_readreg(CDNS_I2C_DATA_OFFSET);
+-			id->recv_count--;
+-			id->curr_recv_count--;
++			if (id->recv_count > 0) {
++				*(id->p_recv_buf)++ =
++					cdns_i2c_readreg(CDNS_I2C_DATA_OFFSET);
++				id->recv_count--;
++				id->curr_recv_count--;
++			} else {
++				dev_err(id->adap.dev.parent,
++					"xfer_size reg rollover. xfer aborted!\n");
++				id->err_status |= CDNS_I2C_IXR_TO;
++				break;
++			}
+ 
+ 			if (cdns_is_holdquirk(id, hold_quirk))
+ 				break;
+@@ -342,7 +350,7 @@ static irqreturn_t cdns_i2c_isr(int irq, void *ptr)
+ 	}
+ 
+ 	/* Update the status for errors */
+-	id->err_status = isr_status & CDNS_I2C_IXR_ERR_INTR_MASK;
++	id->err_status |= isr_status & CDNS_I2C_IXR_ERR_INTR_MASK;
+ 	if (id->err_status)
+ 		status = IRQ_HANDLED;
+ 
+-- 
+2.17.1
+

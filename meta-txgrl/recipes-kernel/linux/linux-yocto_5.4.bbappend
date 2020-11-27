@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/linux-yocto_4.18:"
+FILESEXTRAPATHS_prepend := "${THISDIR}/linux-yocto_5.4:"
 
 SRC_URI_append_ni-txgrl = " \
                          file://defconfig \

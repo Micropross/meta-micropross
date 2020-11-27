@@ -1,7 +1,7 @@
-From d7609fd086346908968ca264f7413979161eb7f3 Mon Sep 17 00:00:00 2001
+From 23081c401d728009b3f0c7e0191d4515e15f17d7 Mon Sep 17 00:00:00 2001
 From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
 Date: Thu, 13 Aug 2020 16:38:30 +0200
-Subject: [PATCH 5/5] ARM: dt: Add devicetree for NI Project Txgrl board
+Subject: [PATCH 6/6] ARM: dt: Add devicetree for NI Project Txgrl board
 
 ---
  arch/arm/boot/dts/Makefile               |   2 +
@@ -12,10 +12,10 @@ Subject: [PATCH 5/5] ARM: dt: Add devicetree for NI Project Txgrl board
  create mode 100644 arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 
 diff --git a/arch/arm/boot/dts/Makefile b/arch/arm/boot/dts/Makefile
-index 37a3de760d40..e5f8edde2395 100644
+index b21b3a64641a..82d5a4a987f0 100644
 --- a/arch/arm/boot/dts/Makefile
 +++ b/arch/arm/boot/dts/Makefile
-@@ -1101,6 +1101,8 @@ dtb-$(CONFIG_ARCH_VT8500) += \
+@@ -1201,6 +1201,8 @@ dtb-$(CONFIG_ARCH_VT8500) += \
  dtb-$(CONFIG_ARCH_ZYNQ) += \
  	zynq-cc108.dtb \
  	zynq-microzed.dtb \
@@ -26,7 +26,7 @@ index 37a3de760d40..e5f8edde2395 100644
  	zynq-zc706.dtb \
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts b/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
 new file mode 100644
-index 000000000000..a4e0219e487c
+index 000000000000..b867c9a25f77
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
 @@ -0,0 +1,444 @@
@@ -437,8 +437,8 @@ index 000000000000..a4e0219e487c
 +	phy-mode = "rgmii-id";
 +	phy-handle = <&ethernet_phy0>;
 +
-+	nvmem-cells = <&eth0_addr>;
-+	nvmem-cell-names = "mac-address";
++	/* Set by bootloader */
++	local-mac-address = [00 00 00 00 00 00];
 +
 +	rxc-skew-ps = <1860>;
 +	rxdv-skew-ps = <0>;
@@ -476,7 +476,7 @@ index 000000000000..a4e0219e487c
 +};
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 new file mode 100644
-index 000000000000..4fb55277b196
+index 000000000000..9890123b8eb4
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 @@ -0,0 +1,465 @@
@@ -908,8 +908,8 @@ index 000000000000..4fb55277b196
 +	phy-mode = "rgmii-id";
 +	phy-handle = <&ethernet_phy0>;
 +
-+	nvmem-cells = <&eth0_addr>;
-+	nvmem-cell-names = "mac-address";
++	/* Set by bootloader */
++	local-mac-address = [00 00 00 00 00 00];
 +
 +	rxc-skew-ps = <1860>;
 +	rxdv-skew-ps = <0>;

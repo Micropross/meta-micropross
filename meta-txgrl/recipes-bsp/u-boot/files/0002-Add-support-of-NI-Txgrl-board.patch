@@ -1,9 +1,10 @@
-From 73fd7a240a24605a08fd7e670d00cf16ed2ef64e Mon Sep 17 00:00:00 2001
+From cf41129fc0c93e58a8702fd5d1ff6de9c9f36e15 Mon Sep 17 00:00:00 2001
 From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
 Date: Wed, 5 Aug 2020 17:33:24 +0200
 Subject: [PATCH 2/2] Add support of NI Txgrl board.
 
 ---
+ arch/arm/dts/Makefile                      |     1 +
  arch/arm/dts/zynq-ni-txgrl-uboot.dtsi      |    41 +
  arch/arm/dts/zynq-ni-txgrl.dts             |   209 +
  board/ni/zynq/MAINTAINERS                  |     6 +
@@ -12,13 +13,13 @@ Subject: [PATCH 2/2] Add support of NI Txgrl board.
  board/ni/zynq/si5338.c                     |   296 +
  board/ni/zynq/si5338.h                     |    13 +
  board/ni/zynq/si5338_reg.h                 |   437 +
- board/ni/zynq/txgrl-eeprom.c               |   192 +
+ board/ni/zynq/txgrl-eeprom.c               |   193 +
  board/ni/zynq/txgrl-eeprom.h               |    44 +
  board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.c | 12945 +++++++++++++++++++
  board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.h |   137 +
  configs/ni_txgrl_defconfig                 |    70 +
  include/configs/ni_txgrl.h                 |    47 +
- 14 files changed, 14686 insertions(+)
+ 15 files changed, 14688 insertions(+)
  create mode 100644 arch/arm/dts/zynq-ni-txgrl-uboot.dtsi
  create mode 100644 arch/arm/dts/zynq-ni-txgrl.dts
  create mode 100644 board/ni/zynq/MAINTAINERS
@@ -34,6 +35,18 @@ Subject: [PATCH 2/2] Add support of NI Txgrl board.
  create mode 100644 configs/ni_txgrl_defconfig
  create mode 100644 include/configs/ni_txgrl.h
 
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 0127a91a82..4c73999de6 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -240,6 +240,7 @@ dtb-$(CONFIG_ARCH_ZYNQ) += \
+ 	zynq-dlc20-rev1.0.dtb \
+ 	zynq-microzed.dtb \
+ 	zynq-minized.dtb \
++	zynq-ni-txgrl.dtb \
+ 	zynq-picozed.dtb \
+ 	zynq-syzygy-hub.dtb \
+ 	zynq-topic-miami.dtb \
 diff --git a/arch/arm/dts/zynq-ni-txgrl-uboot.dtsi b/arch/arm/dts/zynq-ni-txgrl-uboot.dtsi
 new file mode 100644
 index 0000000000..8d8f9ad88f
@@ -327,7 +340,7 @@ index 0000000000..981a96ea27
 \ No newline at end of file
 diff --git a/board/ni/zynq/board.c b/board/ni/zynq/board.c
 new file mode 100644
-index 0000000000..6fbf0a91b2
+index 0000000000..7e87ce0a20
 --- /dev/null
 +++ b/board/ni/zynq/board.c
 @@ -0,0 +1,239 @@
@@ -530,7 +543,7 @@ index 0000000000..6fbf0a91b2
 +
 +int dram_init(void)
 +{
-+	if (fdtdec_setup_memory_size() != 0)
++	if (fdtdec_setup_mem_size_base() != 0)
 +		return -EINVAL;
 +
 +	zynq_ddrc_init();
@@ -1337,10 +1350,10 @@ index 0000000000..a8bee0cd0e
 +//End of file
 diff --git a/board/ni/zynq/txgrl-eeprom.c b/board/ni/zynq/txgrl-eeprom.c
 new file mode 100644
-index 0000000000..986ddfd72d
+index 0000000000..e6e8f74766
 --- /dev/null
 +++ b/board/ni/zynq/txgrl-eeprom.c
-@@ -0,0 +1,192 @@
+@@ -0,0 +1,193 @@
 +/*
 + * (C) Copyright 2017 National Instruments Corp
 + *
@@ -1351,6 +1364,7 @@ index 0000000000..986ddfd72d
 +#include "txgrl-eeprom.h"
 +#include <dm.h>
 +#include <i2c.h>
++#include <u-boot/crc.h>
 +
 +DECLARE_GLOBAL_DATA_PTR;
 +

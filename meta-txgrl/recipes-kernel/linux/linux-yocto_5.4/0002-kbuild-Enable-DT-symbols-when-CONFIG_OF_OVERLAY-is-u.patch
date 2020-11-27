@@ -1,0 +1,27 @@
+From 6e282e5d2f3c59cdd3989f130f4ce3859f216e99 Mon Sep 17 00:00:00 2001
+From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
+Date: Thu, 26 Nov 2020 11:35:49 +0100
+Subject: [PATCH 2/6] kbuild: Enable DT symbols when CONFIG_OF_OVERLAY is used
+
+---
+ scripts/Makefile.lib | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/scripts/Makefile.lib b/scripts/Makefile.lib
+index a6d0044328b1..659f4665d64a 100644
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -273,6 +273,10 @@ cmd_dt_S_dtb=						\
+ $(obj)/%.dtb.S: $(obj)/%.dtb FORCE
+ 	$(call if_changed,dt_S_dtb)
+ 
++ifeq ($(CONFIG_OF_OVERLAY),y)
++DTC_FLAGS += -@
++endif
++
+ quiet_cmd_dtc = DTC     $@
+ cmd_dtc = mkdir -p $(dir ${dtc-tmp}) ; \
+ 	$(HOSTCC) -E $(dtc_cpp_flags) -x assembler-with-cpp -o $(dtc-tmp) $< ; \
+-- 
+2.17.1
+

@@ -23,6 +23,7 @@
 #include <linux/pci.h>
 #include <linux/interrupt.h>
 #include <linux/fs.h>
+#include <linux/of.h>
 #include <linux/uaccess.h>
 #include <linux/cdev.h>
 #include <linux/fs.h>
@@ -601,13 +602,11 @@ long PCIE_Ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	/* Check access rights */
 	if (_IOC_DIR(cmd) & _IOC_READ)
 	{
-		err = !access_ok(VERIFY_WRITE, (void __user *)arg,
-				_IOC_SIZE(cmd));
+		err = !access_ok((void __user *)arg, _IOC_SIZE(cmd));
 	}
 	else if (_IOC_DIR(cmd) & _IOC_WRITE)
 	{
-		err = !access_ok(VERIFY_READ, (void __user *)arg,
-				_IOC_SIZE(cmd));
+		err = !access_ok((void __user *)arg, _IOC_SIZE(cmd));
 	}
 
 	if (err)

@@ -1,5 +1,0 @@
-patch 0001-OF-DT-Overlay-configfs-interface-v7.patch
-patch 0002-kbuild-Enable-DT-symbols-when-CONFIG_OF_OVERLAY-is-u.patch
-patch 0003-misc-eeprom-Set-io_limit-to-16-to-avoid-overflowing.patch
-patch 0004-net-phy-Make-genphy-actually-use-genphy_soft_reset.patch
-patch 0005-ARM-dt-Add-devicetree-for-NI-Project-Txgrl-board.patch
