@@ -41,4 +41,6 @@ do_install_append_ni-txgrl() {
 
     install -m 0644 ${WORKDIR}/timesyncd.conf ${D}${sysconfdir}/systemd/timesyncd.conf
   fi
+
+  sed -i -e 's/#RuntimeWatchdogSec=0/RuntimeWatchdogSec=10/g' ${D}${sysconfdir}/systemd/system.conf
 }
