@@ -1,4 +1,4 @@
-From a133f2d1ee241d1a74fa4ab02c0820752fbc9baa Mon Sep 17 00:00:00 2001
+From fd02ac89bbc7343335467b15e1e390c6404c38d1 Mon Sep 17 00:00:00 2001
 From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
 Date: Wed, 5 Aug 2020 17:33:24 +0200
 Subject: [PATCH 2/2] Add support of NI Txgrl board.
@@ -18,8 +18,8 @@ Subject: [PATCH 2/2] Add support of NI Txgrl board.
  board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.c | 12945 +++++++++++++++++++
  board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.h |   137 +
  configs/ni_txgrl_defconfig                 |    70 +
- include/configs/ni_txgrl.h                 |    47 +
- 15 files changed, 14688 insertions(+)
+ include/configs/ni_txgrl.h                 |    39 +
+ 15 files changed, 14680 insertions(+)
  create mode 100644 arch/arm/dts/zynq-ni-txgrl-uboot.dtsi
  create mode 100644 arch/arm/dts/zynq-ni-txgrl.dts
  create mode 100644 board/ni/zynq/MAINTAINERS
@@ -1350,7 +1350,7 @@ index 0000000000..a8bee0cd0e
 +//End of file
 diff --git a/board/ni/zynq/txgrl-eeprom.c b/board/ni/zynq/txgrl-eeprom.c
 new file mode 100644
-index 0000000000..a0a1245656
+index 0000000000..10dc7e1e0e
 --- /dev/null
 +++ b/board/ni/zynq/txgrl-eeprom.c
 @@ -0,0 +1,193 @@
@@ -1481,11 +1481,11 @@ index 0000000000..a0a1245656
 +	if (0 == ret)
 +	{
 +		char ethaddr_str[128];
-+		snprintf(ethaddr_str, 128, "[%02X %02X %02X %02X %02X %02X]",
++		snprintf(ethaddr_str, 128, "%02X:%02X:%02X:%02X:%02X:%02X",
 +			ethaddr[0], ethaddr[1], ethaddr[2],
 +			ethaddr[3], ethaddr[4], ethaddr[5]);
 +
-+		env_set("ethmacaddr", ethaddr_str);
++		env_set("ethaddr", ethaddr_str);
 +	}
 +	else
 +	{
@@ -14769,10 +14769,10 @@ index 0000000000..3994327848
 +CONFIG_EXT4_WRITE=y
 diff --git a/include/configs/ni_txgrl.h b/include/configs/ni_txgrl.h
 new file mode 100644
-index 0000000000..364c6551dc
+index 0000000000..5c27b9b13e
 --- /dev/null
 +++ b/include/configs/ni_txgrl.h
-@@ -0,0 +1,47 @@
+@@ -0,0 +1,39 @@
 +/* SPDX-License-Identifier: GPL-2.0
 + *
 + * (C) Copyright 2019 National Instruments Corp
@@ -14794,28 +14794,20 @@ index 0000000000..364c6551dc
 +
 +#undef CONFIG_EXTRA_ENV_SETTINGS
 +#define CONFIG_EXTRA_ENV_SETTINGS	\
-+	"kernel_image=/boot/zImage\0" \
-+	"devicetree_image=/boot/zynq-ni-txgrl-revb.dtb\0" \
++	"fit_image=/boot/fitImage\0" \
 +	"board_rev=B\0" \
 +	"mboard=txgrl-revb\0" \
 +	"bootargs=root=/dev/mmcblk0p5 rw rootwait uio_pdrv_genirq.of_id=generic-uio boot_vers=1.0 rev=B\0" \
 +	"expand_bootargs=setenv bootargs root=/dev/mmcblk0p${partindex} rw rootwait uio_pdrv_genirq.of_id=generic-uio boot_vers=1.0 rev=${board_rev}\0" \
-+	"expand_devicetree_image=setenv devicetree_image /boot/zynq-ni-${mboard}.dtb\0" \
-+	"update_ethmacaddr=fdt addr ${fdt_addr} && " \
-+		"fdt set ethernet0 local-mac-address ${ethmacaddr}\0" \
 +	"partindex=5\0" \
 +	"load_addr=0x2000000\0" \
-+	"fdt_addr=0x1f00000\0" \
 +	"fit_size=0x800000\0" \
 +	"fdt_high=0x20000000\0"	\
 +	"initrd_high=0x20000000\0" \
-+	"ethmacaddr=[00 00 00 00 00 00]\0" \
++	"ethaddr=00:00:00:00:00:00\0" \
 +	"sdboot=run expand_bootargs; " \
-+		"run expand_devicetree_image; " \
-+		"load mmc 0:${partindex} ${load_addr} ${kernel_image} && " \
-+		"load mmc 0:${partindex} ${fdt_addr} ${devicetree_image} && " \
-+		"run update_ethmacaddr && " \
-+		"bootz ${load_addr} - ${fdt_addr}\0" \
++		"load mmc 0:${partindex} ${load_addr} ${fit_image} && " \
++		"bootm ${load_addr}#conf@zynq-ni-${mboard}.dtb\0" \
 +		DFU_ALT_INFO
 +
 +
