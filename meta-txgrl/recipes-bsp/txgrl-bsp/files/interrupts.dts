@@ -43,7 +43,7 @@
                 interrupts = <0 34 4>;
             };
 
-            uio_fault_12v@6 {
+            /*uio_fault_12v@6 {
                 compatible = "generic-uio";
                 interrupt-parent = <&intc>;
                 interrupts = <0 35 4>;
@@ -53,7 +53,7 @@
                 compatible = "generic-uio";
                 interrupt-parent = <&intc>;
                 interrupts = <0 52 4>;
-            };
+            };*/
 
             uio_rtc@8 {
                 compatible = "generic-uio";
