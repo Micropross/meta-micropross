@@ -34,26 +34,26 @@
             uio_fault_3v3@4 {
                 compatible = "generic-uio";
                 interrupt-parent = <&intc>;
-                interrupts = <0 33 4>;
+                interrupts = <0 33 1>;
             };
 
             uio_fault_5v@5 {
                 compatible = "generic-uio";
                 interrupt-parent = <&intc>;
-                interrupts = <0 34 4>;
+                interrupts = <0 34 1>;
             };
 
-            /*uio_fault_12v@6 {
+            uio_fault_12v@6 {
                 compatible = "generic-uio";
                 interrupt-parent = <&intc>;
-                interrupts = <0 35 4>;
+                interrupts = <0 35 1>;
             };
 
             uio_fault_ext_12v@7 {
                 compatible = "generic-uio";
                 interrupt-parent = <&intc>;
-                interrupts = <0 52 4>;
-            };*/
+                interrupts = <0 52 1>;
+            };
 
             uio_rtc@8 {
                 compatible = "generic-uio";
