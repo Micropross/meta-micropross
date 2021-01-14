@@ -1,13 +1,13 @@
-From 23081c401d728009b3f0c7e0191d4515e15f17d7 Mon Sep 17 00:00:00 2001
+From 4c89b8b2c5c54415c8a7435a92e3c7b244a7f355 Mon Sep 17 00:00:00 2001
 From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
 Date: Thu, 13 Aug 2020 16:38:30 +0200
 Subject: [PATCH 6/6] ARM: dt: Add devicetree for NI Project Txgrl board
 
 ---
  arch/arm/boot/dts/Makefile               |   2 +
- arch/arm/boot/dts/zynq-ni-txgrl-reva.dts | 444 ++++++++++++++++++++++
- arch/arm/boot/dts/zynq-ni-txgrl-revb.dts | 465 +++++++++++++++++++++++
- 3 files changed, 911 insertions(+)
+ arch/arm/boot/dts/zynq-ni-txgrl-reva.dts | 448 ++++++++++++++++++++++
+ arch/arm/boot/dts/zynq-ni-txgrl-revb.dts | 469 +++++++++++++++++++++++
+ 3 files changed, 919 insertions(+)
  create mode 100644 arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
  create mode 100644 arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 
@@ -26,10 +26,10 @@ index b21b3a64641a..82d5a4a987f0 100644
  	zynq-zc706.dtb \
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts b/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
 new file mode 100644
-index 000000000000..b867c9a25f77
+index 000000000000..a0825cb25c5a
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
-@@ -0,0 +1,444 @@
+@@ -0,0 +1,448 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
 + * NI Micropross Project Txgrl
@@ -323,10 +323,8 @@ index 000000000000..b867c9a25f77
 +	rtc0: rtc@68 {
 +		compatible = "dallas,ds1374";
 +		reg = <0x68>;
-+		reset-on-timeout;
 +		trickle-resistor-ohms = <250>;
 +		trickle-diode-disable;
-+		timeout-sec = <10>;
 +	};
 +
 +	gpio1: gpio@77 {
@@ -474,12 +472,18 @@ index 000000000000..b867c9a25f77
 +		reg = <0xfffc0000 0x10000>;
 +	};
 +};
++
++&watchdog0 {
++	status = "okay";
++	reset-on-timeout;
++	timeout-sec = <10>;
++};
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 new file mode 100644
-index 000000000000..9890123b8eb4
+index 000000000000..e9f634e7f877
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
-@@ -0,0 +1,465 @@
+@@ -0,0 +1,469 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
 + * NI Micropross Project Txgrl
@@ -807,10 +811,8 @@ index 000000000000..9890123b8eb4
 +			rtc0: rtc@68 {
 +				compatible = "dallas,ds1374";
 +				reg = <0x68>;
-+				reset-on-timeout;
 +				trickle-resistor-ohms = <250>;
 +				trickle-diode-disable;
-+				timeout-sec = <10>;
 +			};
 +
 +			gpio1: gpio@77 {
@@ -944,6 +946,12 @@ index 000000000000..9890123b8eb4
 +		compatible = "mmio-sram";
 +		reg = <0xfffc0000 0x10000>;
 +	};
++};
++
++&watchdog0 {
++	status = "okay";
++	reset-on-timeout;
++	timeout-sec = <10>;
 +};
 -- 
 2.17.1
