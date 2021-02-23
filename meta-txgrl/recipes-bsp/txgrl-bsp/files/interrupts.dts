@@ -72,6 +72,12 @@
                 interrupt-parent = <&intc>;
                 interrupts = <0 56 4>;
             };
+
+            uio_hdmi2@13 {
+                compatible = "generic-uio";
+                interrupt-parent = <&intc>;
+                interrupts = <0 58 1>;
+            };
         };
     };
 };
