@@ -1,6 +1,6 @@
-From fd02ac89bbc7343335467b15e1e390c6404c38d1 Mon Sep 17 00:00:00 2001
+From c91e4a3c56d467d83a68e2cb2bb5c668070e827c Mon Sep 17 00:00:00 2001
 From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
-Date: Wed, 5 Aug 2020 17:33:24 +0200
+Date: Wed, 3 Mar 2021 18:16:46 +0100
 Subject: [PATCH 2/2] Add support of NI Txgrl board.
 
 ---
@@ -17,9 +17,12 @@ Subject: [PATCH 2/2] Add support of NI Txgrl board.
  board/ni/zynq/txgrl-eeprom.h               |    44 +
  board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.c | 12945 +++++++++++++++++++
  board/ni/zynq/zynq-ni-txgrl/ps7_init_gpl.h |   137 +
+ cmd/cros_ec.c                              |    90 +-
  configs/ni_txgrl_defconfig                 |    70 +
- include/configs/ni_txgrl.h                 |    39 +
- 15 files changed, 14680 insertions(+)
+ drivers/misc/cros_ec.c                     |    83 +-
+ include/configs/ni_txgrl.h                 |    46 +
+ include/cros_ec.h                          |    32 +
+ 18 files changed, 14872 insertions(+), 20 deletions(-)
  create mode 100644 arch/arm/dts/zynq-ni-txgrl-uboot.dtsi
  create mode 100644 arch/arm/dts/zynq-ni-txgrl.dts
  create mode 100644 board/ni/zynq/MAINTAINERS
@@ -1350,7 +1353,7 @@ index 0000000000..a8bee0cd0e
 +//End of file
 diff --git a/board/ni/zynq/txgrl-eeprom.c b/board/ni/zynq/txgrl-eeprom.c
 new file mode 100644
-index 0000000000..10dc7e1e0e
+index 0000000000..09136534f1
 --- /dev/null
 +++ b/board/ni/zynq/txgrl-eeprom.c
 @@ -0,0 +1,193 @@
@@ -1429,7 +1432,7 @@ index 0000000000..10dc7e1e0e
 +		return err;
 +	}
 +
-+	// Rev B
++	// Rev B+
 +	err = dm_i2c_probe(i2c_tun, 0x57, 0, &eeprom_chip);
 +	if (err < 0) {
 +		// Rev A
@@ -1468,9 +1471,9 @@ index 0000000000..10dc7e1e0e
 +		snprintf(board_rev_buf, 8, "%c", 'A' + rev - 1);
 +	} else {
 +		printf("Found version %u EEPROM, unsupported !\n", ntohl(eeprom.version));
-+		// Set to revision B
-+		snprintf(base_fdt, 128, "txgrl-revb");
-+		snprintf(board_rev_buf, 8, "B");
++		// Set to revision C
++		snprintf(base_fdt, 128, "txgrl-revc");
++		snprintf(board_rev_buf, 8, "C");
 +	}
 +	env_set("mboard", base_fdt);
 +	env_set("board_rev", board_rev_buf);
@@ -1512,7 +1515,7 @@ index 0000000000..10dc7e1e0e
 +		return err;
 +	}
 +
-+	// Rev B
++	// Rev B+
 +	err = dm_i2c_probe(i2c_tun, 0x57, 0, &eeprom_chip);
 +	if (err < 0) {
 +		// Rev A
@@ -14691,9 +14694,115 @@ index 0000000000..44a8137236
 +}
 +#endif
 +
+diff --git a/cmd/cros_ec.c b/cmd/cros_ec.c
+index 75bdf568f4..8c0e8452fb 100644
+--- a/cmd/cros_ec.c
++++ b/cmd/cros_ec.c
+@@ -359,6 +359,58 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ 			debug("%s: Could not access LDO%d\n", __func__, index);
+ 			return ret;
+ 		}
++	} else if (0 == strcmp("bootmode", cmd)) {
++		enum cros_ec_bootmode bootmode;
++
++		if (argc >= 3)
++		{
++			/* Set bootmode */
++			if (0 == strcmp("normal", argv[2]))
++				ret = cros_ec_write_bootmode(dev, CROS_EC_BOOT_NORMAL);
++			else if (0 == strcmp("recovery", argv[2]))
++			{
++				ret = cros_ec_write_bootmode(dev, CROS_EC_BOOT_RECOVERY);
++				/* Add typical recovery beeps */
++				cros_ec_beep(dev, 30);
++				udelay(30000);
++				cros_ec_beep(dev, 30);
++				udelay(30000);
++				cros_ec_beep(dev, 30);
++			}
++			else
++				ret = CMD_RET_USAGE;
++		}
++		else
++		{
++			/* Get bootmode */
++			ret = cros_ec_read_bootmode(dev, &bootmode);
++			if (!ret) {
++				if (bootmode == CROS_EC_BOOT_NORMAL)
++				{
++					printf("normal\n");
++					ret = 0;
++				}
++				else if (bootmode == CROS_EC_BOOT_RECOVERY)
++				{
++					printf("recovery\n");
++					ret = 1;
++				}
++				else
++					printf("error: unknown bootmode %d\n", bootmode);
++			}
++		}
++	} else if (0 == strcmp("beep", cmd)) {
++		int duration_ms;
++		char *endp;
++
++		if (argc < 2)
++			return CMD_RET_USAGE;
++
++		duration_ms = simple_strtoul(argv[2], &endp, 10);
++		if (*argv[2] == 0 || *endp != 0)
++			return CMD_RET_USAGE;
++
++		ret = cros_ec_beep(dev, duration_ms);
+ 	} else {
+ 		return CMD_RET_USAGE;
+ 	}
+@@ -374,22 +426,24 @@ static int do_cros_ec(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
+ U_BOOT_CMD(
+ 	crosec,	6,	1,	do_cros_ec,
+ 	"CROS-EC utility command",
+-	"init                Re-init CROS-EC (done on startup automatically)\n"
+-	"crosec id                  Read CROS-EC ID\n"
+-	"crosec info                Read CROS-EC info\n"
+-	"crosec curimage            Read CROS-EC current image\n"
+-	"crosec swsync <addr> <size> [hexstring] Sync CROS-EC image if required\n"
+-	"crosec hash                Read CROS-EC hash\n"
+-	"crosec reboot [rw | ro | cold]  Reboot CROS-EC\n"
+-	"crosec events              Read CROS-EC host events\n"
+-	"crosec clrevents [mask]    Clear CROS-EC host events\n"
+-	"crosec regioninfo <ro|rw>  Read image info\n"
+-	"crosec flashinfo           Read flash info\n"
+-	"crosec erase <ro|rw>       Erase EC image\n"
+-	"crosec read <ro|rw> <addr> [<size>]   Read EC image\n"
+-	"crosec write <ro|rw> <addr> [<size>]  Write EC image\n"
+-	"crosec vbnvcontext [hexstring]        Read [write] VbNvContext from EC\n"
+-	"crosec ldo <idx> [<state>] Switch/Read LDO state\n"
+-	"crosec test                run tests on cros_ec\n"
+-	"crosec version             Read CROS-EC version"
++	"init                                Re-init CROS-EC (done on startup automatically)\n"
++	"crosec id                                  Read CROS-EC ID\n"
++	"crosec info                                Read CROS-EC info\n"
++	"crosec curimage                            Read CROS-EC current image\n"
++	"crosec swsync <addr> <size> [hexstring]    Sync CROS-EC image if required\n"
++	"crosec hash                                Read CROS-EC hash\n"
++	"crosec reboot [rw | ro | cold]             Reboot CROS-EC\n"
++	"crosec events                              Read CROS-EC host events\n"
++	"crosec clrevents [mask]                    Clear CROS-EC host events\n"
++	"crosec regioninfo <ro|rw>                  Read image info\n"
++	"crosec flashinfo                           Read flash info\n"
++	"crosec erase <ro|rw>                       Erase EC image\n"
++	"crosec read <ro|rw> <addr> [<size>]        Read EC image\n"
++	"crosec write <ro|rw> <addr> [<size>]       Write EC image\n"
++	"crosec vbnvcontext [hexstring]             Read [write] VbNvContext from EC\n"
++	"crosec ldo <idx> [<state>]                 Switch/Read LDO state\n"
++	"crosec test                                Run tests on cros_ec\n"
++	"crosec version                             Read CROS-EC version\n"
++	"crosec bootmode [normal | recovery]        Read CROS-EC bootmode\n"
++	"crosec beep <duration_ms>                  Beep CROS-EC"
+ );
 diff --git a/configs/ni_txgrl_defconfig b/configs/ni_txgrl_defconfig
 new file mode 100644
-index 0000000000..3994327848
+index 0000000000..3ef7da70c3
 --- /dev/null
 +++ b/configs/ni_txgrl_defconfig
 @@ -0,0 +1,70 @@
@@ -14714,7 +14823,7 @@ index 0000000000..3994327848
 +CONFIG_FIT_SIGNATURE=y
 +CONFIG_IMAGE_FORMAT_LEGACY=y
 +CONFIG_BOOTDELAY=1
-+CONFIG_BOOTCOMMAND="run $modeboot || run distro_bootcmd"
++CONFIG_BOOTCOMMAND="run $modeboot || run recoveryboot || run distro_bootcmd"
 +CONFIG_VERSION_VARIABLE=y
 +# CONFIG_DISPLAY_CPUINFO is not set
 +CONFIG_SPL_STACK_R=y
@@ -14767,12 +14876,120 @@ index 0000000000..3994327848
 +CONFIG_USB_GADGET_DOWNLOAD=y
 +CONFIG_USB_FUNCTION_THOR=y
 +CONFIG_EXT4_WRITE=y
+diff --git a/drivers/misc/cros_ec.c b/drivers/misc/cros_ec.c
+index 3b6370a6d5..a0e29fd5e1 100644
+--- a/drivers/misc/cros_ec.c
++++ b/drivers/misc/cros_ec.c
+@@ -280,7 +280,7 @@ static int send_command_proto3(struct cros_ec_dev *cdev,
+ 	return handle_proto3_response(cdev, dinp, din_len);
+ }
+ 
+-static int send_command(struct cros_ec_dev *dev, uint cmd, int cmd_version,
++static int send_command(struct cros_ec_dev *dev, uint16_t cmd, int cmd_version,
+ 			const void *dout, int dout_len,
+ 			uint8_t **dinp, int din_len)
+ {
+@@ -316,7 +316,7 @@ static int send_command(struct cros_ec_dev *dev, uint cmd, int cmd_version,
+  * @param din_len       Maximum size of response in bytes
+  * @return number of bytes in response, or -ve on error
+  */
+-static int ec_command_inptr(struct udevice *dev, uint8_t cmd,
++static int ec_command_inptr(struct udevice *dev, uint16_t cmd,
+ 			    int cmd_version, const void *dout, int dout_len,
+ 			    uint8_t **dinp, int din_len)
+ {
+@@ -1630,6 +1630,85 @@ int cros_ec_set_lid_shutdown_mask(struct udevice *dev, int enable)
+ 	return 0;
+ }
+ 
++#define EC_CMD_BOARD_SPECIFIC_BASE 0x3E00
++#define EC_CMD_BOOTMODE (0x0000 + EC_CMD_BOARD_SPECIFIC_BASE)
++
++/**
++ * struct ec_params_bootmode - Parameters to the bootmode command.
++ * @set: 0: get | 1: set
++ * @boot_mode: boot_mode to set
++ */
++struct ec_params_bootmode {
++	uint16_t set;
++	uint16_t boot_mode;
++} __packed;
++
++/**
++ * struct ec_response_bootmode - Response to the bootmode command.
++ * @boot_mode: Output the state of boot_mode.
++ */
++struct ec_response_bootmode {
++	uint32_t boot_mode;
++} __packed;
++
++int cros_ec_read_bootmode(struct udevice *dev, enum cros_ec_bootmode *bootmode)
++{
++	struct ec_params_bootmode req;
++	struct ec_response_bootmode *resp;
++
++	req.set = 0; // Get Mode
++	req.boot_mode = 0;
++	if (ec_command_inptr(dev, EC_CMD_BOOTMODE, 0, &req, sizeof(req),
++		       (uint8_t **)&resp, sizeof(*resp)) < sizeof(*resp)) {
++		printf("ec_command_inptr() returned error\n");
++		return -1;
++	}
++	if (NULL != bootmode)
++		*bootmode = resp->boot_mode;
++
++	return 0;
++}
++
++int cros_ec_write_bootmode(struct udevice *dev, enum cros_ec_bootmode bootmode)
++{
++	struct ec_params_bootmode req;
++	struct ec_response_bootmode *resp;
++
++	req.set = 1; // Set Mode
++	req.boot_mode = bootmode == CROS_EC_BOOT_NORMAL ? 0 : 1 ;
++	if (ec_command_inptr(dev, EC_CMD_BOOTMODE, 0, &req, sizeof(req),
++		       (uint8_t **)&resp, sizeof(*resp)) < sizeof(*resp)) {
++		printf("ec_command_inptr() returned error\n");
++		return -1;
++	}
++
++	return 0;
++}
++
++#define EC_CMD_BEEP (0x0001 + EC_CMD_BOARD_SPECIFIC_BASE)
++
++/**
++ * struct ec_params_beep - Parameters to the beep command.
++ * @duration_ms: beep duration in ms
++ */
++struct ec_params_beep {
++	uint32_t duration_ms;
++} __packed;
++
++int cros_ec_beep(struct udevice *dev, int duration_ms)
++{
++	struct ec_params_beep req;
++
++	req.duration_ms = duration_ms;
++	if (ec_command_inptr(dev, EC_CMD_BEEP, 0, &req, sizeof(req), NULL, 0))
++	{
++		printf("ec_command_inptr() returned error\n");
++		return -1;
++	}
++
++	return 0;
++}
++
+ UCLASS_DRIVER(cros_ec) = {
+ 	.id		= UCLASS_CROS_EC,
+ 	.name		= "cros-ec",
 diff --git a/include/configs/ni_txgrl.h b/include/configs/ni_txgrl.h
 new file mode 100644
-index 0000000000..5c27b9b13e
+index 0000000000..23b3c6e9ef
 --- /dev/null
 +++ b/include/configs/ni_txgrl.h
-@@ -0,0 +1,39 @@
+@@ -0,0 +1,46 @@
 +/* SPDX-License-Identifier: GPL-2.0
 + *
 + * (C) Copyright 2019 National Instruments Corp
@@ -14795,23 +15012,71 @@ index 0000000000..5c27b9b13e
 +#undef CONFIG_EXTRA_ENV_SETTINGS
 +#define CONFIG_EXTRA_ENV_SETTINGS	\
 +	"fit_image=/boot/fitImage\0" \
-+	"board_rev=B\0" \
-+	"mboard=txgrl-revb\0" \
-+	"bootargs=root=/dev/mmcblk0p5 rw rootwait uio_pdrv_genirq.of_id=generic-uio boot_vers=1.0 rev=B\0" \
++	"board_rev=C\0" \
++	"mboard=txgrl-revc\0" \
++	"bootargs=root=/dev/mmcblk0p5 rw rootwait uio_pdrv_genirq.of_id=generic-uio boot_vers=1.0 rev=C\0" \
 +	"expand_bootargs=setenv bootargs root=/dev/mmcblk0p${partindex} rw rootwait uio_pdrv_genirq.of_id=generic-uio boot_vers=1.0 rev=${board_rev}\0" \
 +	"partindex=5\0" \
++	"recoverypartindex=2\0" \
 +	"load_addr=0x2000000\0" \
 +	"fit_size=0x800000\0" \
 +	"fdt_high=0x20000000\0"	\
 +	"initrd_high=0x20000000\0" \
 +	"ethaddr=00:00:00:00:00:00\0" \
-+	"sdboot=run expand_bootargs; " \
++	"sdboot=crosec bootmode || setenv partindex ${recoverypartindex}; " \
++	    "run expand_bootargs; " \
 +		"load mmc 0:${partindex} ${load_addr} ${fit_image} && " \
 +		"bootm ${load_addr}#conf@zynq-ni-${mboard}.dtb\0" \
++	"recoveryboot=crosec bootmode recovery; " \
++		"setenv partindex ${recoverypartindex}; " \
++		"run expand_bootargs; " \
++		"load mmc 0:${partindex} ${load_addr} ${fit_image} && " \
++		"bootm ${load_addr}\0" \
 +		DFU_ALT_INFO
 +
 +
 +#endif /* __CONFIG_NI_TXGRL_H */
+diff --git a/include/cros_ec.h b/include/cros_ec.h
+index aed5dd876e..0c114a8e44 100644
+--- a/include/cros_ec.h
++++ b/include/cros_ec.h
+@@ -495,4 +495,36 @@ int cros_ec_get_lid_shutdown_mask(struct udevice *dev);
+  */
+ int cros_ec_set_lid_shutdown_mask(struct udevice *dev, int enable);
+ 
++enum cros_ec_bootmode {
++	CROS_EC_BOOT_NORMAL = 0,
++	CROS_EC_BOOT_RECOVERY,
++};
++/**
++ * Read the bootmode from EC
++ *
++ * @param dev		CROS-EC device
++ * @param bootmode	Pointer to get the bootmode
++ * @return 0 if ok, -1 on error
++ */
++int cros_ec_read_bootmode(struct udevice *dev,
++		       enum cros_ec_bootmode *bootmode);
++
++/**
++ * Write the bootmode in EC
++ *
++ * @param dev		CROS-EC device
++ * @param bootmode	Value of the bootmode
++ * @return 0 if ok, -1 on error
++ */
++int cros_ec_write_bootmode(struct udevice *dev,
++		       enum cros_ec_bootmode bootmode);
++
++/**
++ * Beep
++ *
++ * @param duration_ms	Beep duration in ms
++ * @return 0 if ok, -1 on error
++ */
++int cros_ec_beep(struct udevice *dev, int duration_ms);
++
+ #endif
 -- 
 2.17.1
 
