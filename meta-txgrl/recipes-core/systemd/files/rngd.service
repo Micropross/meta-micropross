@@ -1,0 +1,2 @@
+[Service]
+ExecStart=/usr/sbin/rngd -f -r /dev/urandom

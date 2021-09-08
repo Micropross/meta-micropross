@@ -7,11 +7,13 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 SRC_URI_append_ni-txgrl = " \
     file://10-eth0.network \
     file://timesyncd.conf \
+    file://rngd.service \
 "
 
 FILES_${PN}_append_ni-txgrl = " \
     ${sysconfdir}/systemd/network/10-eth0.network \
 	  ${sysconfdir}/systemd/timesyncd.conf \
+    ${sysconfdir}/systemd/system/rngd.service \
 "
 
 FILES_${PN}_append_ni-txgrl = " \
@@ -41,5 +43,7 @@ do_install_append_ni-txgrl() {
 
     install -m 0644 ${WORKDIR}/timesyncd.conf ${D}${sysconfdir}/systemd/timesyncd.conf
   fi
+
+  install -m 0600 ${WORKDIR}/rngd.service ${D}${sysconfdir}/systemd/system/rngd.service
 
 }
