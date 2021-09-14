@@ -1,14 +1,14 @@
-From fd68a2c5d53fbfb7ebec069073993ed8f26c2f1b Mon Sep 17 00:00:00 2001
+From ce6add9ae8d26ef9e34c23243a0b5278889dbc93 Mon Sep 17 00:00:00 2001
 From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
 Date: Thu, 13 Aug 2020 16:38:30 +0200
 Subject: [PATCH 6/6] ARM: dt: Add devicetree for NI Project Txgrl board
 
 ---
  arch/arm/boot/dts/Makefile               |   3 +
- arch/arm/boot/dts/zynq-ni-txgrl-reva.dts | 448 ++++++++++++++++++++++
- arch/arm/boot/dts/zynq-ni-txgrl-revb.dts | 469 +++++++++++++++++++++++
- arch/arm/boot/dts/zynq-ni-txgrl-revc.dts | 469 +++++++++++++++++++++++
- 4 files changed, 1389 insertions(+)
+ arch/arm/boot/dts/zynq-ni-txgrl-reva.dts | 444 ++++++++++++++++++++++
+ arch/arm/boot/dts/zynq-ni-txgrl-revb.dts | 465 +++++++++++++++++++++++
+ arch/arm/boot/dts/zynq-ni-txgrl-revc.dts | 465 +++++++++++++++++++++++
+ 4 files changed, 1377 insertions(+)
  create mode 100644 arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
  create mode 100644 arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
  create mode 100644 arch/arm/boot/dts/zynq-ni-txgrl-revc.dts
@@ -29,10 +29,10 @@ index b21b3a64641a..486d78235a60 100644
  	zynq-zc706.dtb \
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts b/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
 new file mode 100644
-index 000000000000..a0825cb25c5a
+index 000000000000..ff2f434ab9c3
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-reva.dts
-@@ -0,0 +1,448 @@
+@@ -0,0 +1,444 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
 + * NI Micropross Project Txgrl
@@ -247,10 +247,6 @@ index 000000000000..a0825cb25c5a
 +};
 +
 +&sdhci0 {
-+	status = "okay";
-+};
-+
-+&uart0 {
 +	status = "okay";
 +};
 +
@@ -483,10 +479,10 @@ index 000000000000..a0825cb25c5a
 +};
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
 new file mode 100644
-index 000000000000..e9f634e7f877
+index 000000000000..dd90748e03d4
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-revb.dts
-@@ -0,0 +1,469 @@
+@@ -0,0 +1,465 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
 + * NI Micropross Project Txgrl
@@ -732,10 +728,6 @@ index 000000000000..e9f634e7f877
 +	status = "okay";
 +};
 +
-+&uart0 {
-+	status = "okay";
-+};
-+
 +&uart1 {
 +	status = "okay";
 +};
@@ -958,10 +950,10 @@ index 000000000000..e9f634e7f877
 +};
 diff --git a/arch/arm/boot/dts/zynq-ni-txgrl-revc.dts b/arch/arm/boot/dts/zynq-ni-txgrl-revc.dts
 new file mode 100644
-index 000000000000..d7a308a33d46
+index 000000000000..b8f20470cc85
 --- /dev/null
 +++ b/arch/arm/boot/dts/zynq-ni-txgrl-revc.dts
-@@ -0,0 +1,469 @@
+@@ -0,0 +1,465 @@
 +// SPDX-License-Identifier: (GPL-2.0 OR X11)
 +/*
 + * NI Micropross Project Txgrl
@@ -1204,10 +1196,6 @@ index 000000000000..d7a308a33d46
 +};
 +
 +&sdhci0 {
-+	status = "okay";
-+};
-+
-+&uart0 {
 +	status = "okay";
 +};
 +
