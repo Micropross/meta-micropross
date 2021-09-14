@@ -11,6 +11,7 @@ SRC_URI = " file://txgrl-pl.dts \
             file://interrupts.dts \
             file://ni_cts3_spy.dts \
             file://usb-device.dts \
+            file://serial_console.dts \
           "
 
 FILES_${PN} = "	/lib/firmware/txgrl-pl.dtbo \
@@ -19,6 +20,7 @@ FILES_${PN} = "	/lib/firmware/txgrl-pl.dtbo \
                 /lib/firmware/interrupts.dtbo \
                 /lib/firmware/ni_cts3_spy.dtbo \
                 /lib/firmware/usb-device.dtbo \
+                /lib/firmware/serial_console.dtbo \
               "
 
 S = "${WORKDIR}"
@@ -32,6 +34,7 @@ do_compile() {
     dtc -@ -o ${WORKDIR}/interrupts.dtbo ${WORKDIR}/interrupts.dts
     dtc -@ -o ${WORKDIR}/ni_cts3_spy.dtbo ${WORKDIR}/ni_cts3_spy.dts
     dtc -@ -o ${WORKDIR}/usb-device.dtbo ${WORKDIR}/usb-device.dts
+    dtc -@ -o ${WORKDIR}/serial_console.dtbo ${WORKDIR}/serial_console.dts
 }
 
 do_install() {
@@ -42,4 +45,5 @@ do_install() {
     install -D -m 0600 ${WORKDIR}/interrupts.dtbo ${D}/lib/firmware/interrupts.dtbo
     install -D -m 0600 ${WORKDIR}/ni_cts3_spy.dtbo ${D}/lib/firmware/ni_cts3_spy.dtbo
     install -D -m 0600 ${WORKDIR}/usb-device.dtbo ${D}/lib/firmware/usb-device.dtbo
+    install -D -m 0600 ${WORKDIR}/serial_console.dtbo ${D}/lib/firmware/serial_console.dtbo
 }
