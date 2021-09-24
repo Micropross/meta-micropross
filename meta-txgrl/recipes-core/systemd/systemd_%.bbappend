@@ -46,4 +46,6 @@ do_install_append_ni-txgrl() {
 
   install -m 0600 ${WORKDIR}/rngd.service ${D}${sysconfdir}/systemd/system/rngd.service
 
+  # Set DefaultTimeoutStopSec to 5s
+  sed -i -e 's/#DefaultTimeoutStopSec=90s/DefaultTimeoutStopSec=5s/g' ${D}${sysconfdir}/systemd/system.conf
 }
