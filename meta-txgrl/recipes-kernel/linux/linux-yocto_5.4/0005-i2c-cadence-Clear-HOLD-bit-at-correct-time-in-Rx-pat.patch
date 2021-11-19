@@ -1,7 +1,7 @@
 From fa60de864390fdf093a357d39fab1d21fe373bbb Mon Sep 17 00:00:00 2001
 From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
 Date: Fri, 3 Jul 2020 19:26:12 +0530
-Subject: [PATCH 5/6] i2c: cadence: Clear HOLD bit at correct time in Rx path
+Subject: [PATCH 5/8] i2c: cadence: Clear HOLD bit at correct time in Rx path
 
 There are few issues on Zynq SOC observed in the stress tests causing
 timeout errors. Even though all the data is received, timeout error

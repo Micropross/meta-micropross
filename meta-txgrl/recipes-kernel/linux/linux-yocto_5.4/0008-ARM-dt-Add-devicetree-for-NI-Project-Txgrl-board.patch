@@ -1,7 +1,7 @@
-From ce6add9ae8d26ef9e34c23243a0b5278889dbc93 Mon Sep 17 00:00:00 2001
+From 6a7326b0f486194b468fd825d7d433255e5f865f Mon Sep 17 00:00:00 2001
 From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
 Date: Thu, 13 Aug 2020 16:38:30 +0200
-Subject: [PATCH 6/6] ARM: dt: Add devicetree for NI Project Txgrl board
+Subject: [PATCH 8/8] ARM: dt: Add devicetree for NI Project Txgrl board
 
 ---
  arch/arm/boot/dts/Makefile               |   3 +

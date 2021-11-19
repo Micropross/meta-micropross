@@ -1,7 +1,7 @@
 From 6e282e5d2f3c59cdd3989f130f4ce3859f216e99 Mon Sep 17 00:00:00 2001
 From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
 Date: Thu, 26 Nov 2020 11:35:49 +0100
-Subject: [PATCH 2/6] kbuild: Enable DT symbols when CONFIG_OF_OVERLAY is used
+Subject: [PATCH 2/8] kbuild: Enable DT symbols when CONFIG_OF_OVERLAY is used
 
 ---
  scripts/Makefile.lib | 4 ++++

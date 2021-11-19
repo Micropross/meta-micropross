@@ -1,7 +1,7 @@
 From 6d73d4e0c0bc253a3422d9144cc13a1f459b6c5e Mon Sep 17 00:00:00 2001
 From: Alex Williams <alex.williams@ni.com>
 Date: Thu, 31 Jan 2019 13:39:57 -0800
-Subject: [PATCH 4/6] i2c: cadence: Handle transfer_size rollover
+Subject: [PATCH 4/8] i2c: cadence: Handle transfer_size rollover
 
 Under certain conditions, Cadence's I2C controller's transfer_size
 register will roll over and generate invalid read transactions. Before

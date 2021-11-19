@@ -1,0 +1,92 @@
+From 9ed15a147d53977a5e5ae1e8b7ae7adecbc09009 Mon Sep 17 00:00:00 2001
+From: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+Date: Tue, 24 Nov 2020 13:16:05 +0530
+Subject: [PATCH 7/8] i2c: cadence: Clear HOLD bit before xfer_size register
+ rolls over
+
+On Xilinx zynq SOC if the delay between address register write and
+control register write in cdns_mrecv function is more, the xfer size
+register rolls over and controller is stuck. This is an IP bug and
+is resolved in later versions of IP.
+
+To avoid this scenario, disable the interrupts on the current processor
+core between the two register writes and enable them later. This can
+help achieve the timing constraint.
+
+Signed-off-by: Raviteja Narayanam <raviteja.narayanam@xilinx.com>
+Acked-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+---
+ drivers/i2c/busses/i2c-cadence.c | 48 +++++++++++++++++++++++++++-----
+ 1 file changed, 41 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 5616599d12e4..6b1988326717 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -369,6 +369,11 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
+ {
+ 	unsigned int ctrl_reg;
+ 	unsigned int isr_status;
++	unsigned long flags;
++	bool hold_clear = false;
++	bool irq_save = false;
++
++	u32 addr;
+ 
+ 	id->p_recv_buf = id->p_msg->buf;
+ 	id->recv_count = id->p_msg->len;
+@@ -409,14 +414,43 @@ static void cdns_i2c_mrecv(struct cdns_i2c *id)
+ 		cdns_i2c_writereg(id->recv_count, CDNS_I2C_XFER_SIZE_OFFSET);
+ 	}
+ 
+-	/* Set the slave address in address register - triggers operation */
+-	cdns_i2c_writereg(id->p_msg->addr & CDNS_I2C_ADDR_MASK,
+-						CDNS_I2C_ADDR_OFFSET);
+-	/* Clear the bus hold flag if bytes to receive is less than FIFO size */
++	/* Determine hold_clear based on number of bytes to receive and hold flag */
+ 	if (!id->bus_hold_flag &&
+-		((id->p_msg->flags & I2C_M_RECV_LEN) != I2C_M_RECV_LEN) &&
+-		(id->recv_count <= CDNS_I2C_FIFO_DEPTH))
+-			cdns_i2c_clear_bus_hold(id);
++	    ((id->p_msg->flags & I2C_M_RECV_LEN) != I2C_M_RECV_LEN) &&
++	    (id->recv_count <= CDNS_I2C_FIFO_DEPTH)) {
++		if (cdns_i2c_readreg(CDNS_I2C_CR_OFFSET) & CDNS_I2C_CR_HOLD) {
++			hold_clear = true;
++			if (id->quirks & CDNS_I2C_BROKEN_HOLD_BIT)
++				irq_save = true;
++		}
++	}
++
++	addr = id->p_msg->addr;
++	addr &= CDNS_I2C_ADDR_MASK;
++
++	if (hold_clear) {
++		ctrl_reg = cdns_i2c_readreg(CDNS_I2C_CR_OFFSET) & ~CDNS_I2C_CR_HOLD;
++		/*
++		 * In case of Xilinx Zynq SOC, clear the HOLD bit before transfer size
++		 * register reaches '0'. This is an IP bug which causes transfer size
++		 * register overflow to 0xFF. To satisfy this timing requirement,
++		 * disable the interrupts on current processor core between register
++		 * writes to slave address register and control register.
++		 */
++		if (irq_save)
++			local_irq_save(flags);
++
++		cdns_i2c_writereg(addr, CDNS_I2C_ADDR_OFFSET);
++		cdns_i2c_writereg(ctrl_reg, CDNS_I2C_CR_OFFSET);
++		/* Read it back to avoid bufferring and make sure write happens */
++		cdns_i2c_readreg(CDNS_I2C_CR_OFFSET);
++
++		if (irq_save)
++			local_irq_restore(flags);
++	} else {
++		cdns_i2c_writereg(addr, CDNS_I2C_ADDR_OFFSET);
++	}
++
+ 	cdns_i2c_writereg(CDNS_I2C_ENABLED_INTR_MASK, CDNS_I2C_IER_OFFSET);
+ }
+ 
+-- 
+2.17.1
+

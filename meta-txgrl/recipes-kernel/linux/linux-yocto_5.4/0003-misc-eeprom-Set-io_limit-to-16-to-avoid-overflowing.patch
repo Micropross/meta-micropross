@@ -1,7 +1,7 @@
 From 9485af75f85a7d3372f472246abfcc678320fb7f Mon Sep 17 00:00:00 2001
 From: Moritz Fischer <moritz@ettus.com>
 Date: Wed, 25 Apr 2018 20:06:55 -0700
-Subject: [PATCH 3/6] misc: eeprom: Set io_limit to 16 to avoid overflowing
+Subject: [PATCH 3/8] misc: eeprom: Set io_limit to 16 to avoid overflowing
 
 Set the io_limit to 16 to avoid overflowing the i2c
 passthrough through the MCU. This should properly be
