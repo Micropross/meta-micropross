@@ -1,0 +1,34 @@
+From a0004a8c002d0ea96efc4450fdef88db7617e418 Mon Sep 17 00:00:00 2001
+From: Guillaume Fouilleul <guillaume.fouilleul@ni.com>
+Date: Mon, 10 Jan 2022 14:56:31 +0100
+Subject: [PATCH 9/9] [LINUX PATCH] usb: gadget: u_ether: make single queue
+ buffer
+
+This patch make single queue buffer for rndis class driver.
+---
+ drivers/usb/gadget/function/u_ether.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/usb/gadget/function/u_ether.c b/drivers/usb/gadget/function/u_ether.c
+index 891e9f7f40d5..49bf285f478d 100644
+--- a/drivers/usb/gadget/function/u_ether.c
++++ b/drivers/usb/gadget/function/u_ether.c
+@@ -88,13 +88,14 @@ struct eth_dev {
+ #define RX_EXTRA	20	/* bytes guarding against rx overflows */
+ 
+ #define DEFAULT_QLEN	2	/* double buffering by default */
++#define SINGLE_QLEN		1	/* single buffering */
+ 
+ /* for dual-speed hardware, use deeper queues at high/super speed */
+ static inline int qlen(struct usb_gadget *gadget, unsigned qmult)
+ {
+ 	if (gadget_is_dualspeed(gadget) && (gadget->speed == USB_SPEED_HIGH ||
+ 					    gadget->speed >= USB_SPEED_SUPER))
+-		return qmult * DEFAULT_QLEN;
++		return SINGLE_QLEN;
+ 	else
+ 		return DEFAULT_QLEN;
+ }
+-- 
+2.17.1
+
