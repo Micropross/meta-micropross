@@ -7,3 +7,4 @@ patch 0006-i2c-cadence-add-IRQ-check.patch
 patch 0007-i2c-cadence-Clear-HOLD-bit-before-xfer_size-register.patch
 patch 0008-ARM-dt-Add-devicetree-for-NI-Project-Txgrl-board.patch
 patch 0009-LINUX-PATCH-usb-gadget-u_ether-make-single-queue-buf.patch
+patch 0010-ARM-dt-Add-devicetree-for-NI-Txgrl-board-rev-D.patch
